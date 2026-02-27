@@ -7,48 +7,338 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #0A0A0F; color: white; font-family: Arial; }
-        .token-glow { background: linear-gradient(145deg, #8B5CF6, #3B82F6); }
+        * { font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #0A0A0F; color: white; margin: 0; padding: 0; }
+        .token-glow { 
+            background: linear-gradient(145deg, #8B5CF6, #3B82F6);
+            transition: all 0.1s ease;
+        }
+        .token-glow:active { transform: scale(0.95); }
+        .energy-bar { transition: width 0.3s ease; }
     </style>
 </head>
-<body>
-    <div class="p-4">
-        <h1 class="text-2xl font-bold">NovApex</h1>
-        <p class="text-gray-400">NAPX Token</p>
-        <div class="mt-4 p-4 bg-white/10 rounded-xl">
-            <div class="text-4xl font-black" id="balance">0</div>
-            <button class="token-glow w-full py-4 rounded-xl mt-4 text-white font-bold" id="tapButton">
-                TAP
-            </button>
+<body class="p-4 pb-24">
+    <div class="max-w-md mx-auto">
+        
+        <!-- ========== KULLANICI KARTI ========== -->
+        <div class="bg-white/5 rounded-2xl p-4 mb-4 border border-white/10">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-sm text-gray-400" id="userName">NovApex Kaşifi</div>
+                    <div class="text-3xl font-black text-white" id="napxBalance">0</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-gray-400">Seviye</div>
+                    <div class="text-xl font-bold text-purple-400" id="userLevel">Starter</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== ENERJİ ÇUBUĞU ========== -->
+        <div class="bg-white/5 rounded-xl p-3 mb-4 border border-white/10">
+            <div class="flex justify-between text-xs mb-1">
+                <span>Enerji</span>
+                <span id="energyText">1000/1000</span>
+            </div>
+            <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                <div id="energyBar" class="energy-bar h-full bg-gradient-to-r from-green-400 to-emerald-400" style="width: 100%"></div>
+            </div>
+        </div>
+        
+        <!-- ========== TAP BUTONU ========== -->
+        <button id="tapButton" class="token-glow w-full py-8 rounded-2xl text-white text-2xl font-bold mb-6 shadow-2xl">
+            TAP • +1 NAPX
+        </button>
+        
+        <!-- ========== GÖREVLER ========== -->
+        <div class="mt-6">
+            <h2 class="text-lg font-bold text-white mb-3">⚡ Görevler</h2>
+            <div id="gorevlerListesi" class="space-y-2">
+                <!-- Görevler JavaScript ile doldurulacak -->
+            </div>
+        </div>
+        
+        <!-- ========== İSTATİSTİKLER ========== -->
+        <div class="grid grid-cols-2 gap-2 mt-4">
+            <div class="bg-white/5 rounded-xl p-3">
+                <div class="text-xs text-gray-400">Toplam Tap</div>
+                <div class="text-lg font-bold" id="totalTaps">0</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-3">
+                <div class="text-xs text-gray-400">Çarpan</div>
+                <div class="text-lg font-bold text-purple-400" id="multiplier">1.0x</div>
+            </div>
+        </div>
+        
+        <!-- ========== ALT NAVIGASYON ========== -->
+        <div class="fixed bottom-0 left-0 w-full bg-black/90 border-t border-white/10 p-2 pb-safe">
+            <div class="grid grid-cols-4 gap-2 max-w-md mx-auto">
+                <button class="py-2 px-1 text-xs text-purple-400">🏠 Farm</button>
+                <button class="py-2 px-1 text-xs text-gray-500">📊 Earn</button>
+                <button class="py-2 px-1 text-xs text-gray-500">👥 Friends</button>
+                <button class="py-2 px-1 text-xs text-gray-500">⚙️ Stats</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let balance = 0;
-        const tg = window.Telegram?.WebApp;
+        // =============================================
+        // NOVAPEX - MODÜLER SİSTEM (Değişime Açık)
+        // =============================================
         
-        if (tg) {
-            tg.expand();
-            tg.ready();
-            
-            // CloudStorage'dan veri al
-            tg.CloudStorage.getItem('napx_balance', function(err, value) {
-                if (value) {
-                    balance = parseInt(value);
-                    document.getElementById('balance').textContent = balance;
-                }
-            });
-        }
+        // ---------- AYARLAR (Burası senin kontrolünde!) ----------
+        const ENERJI_AYARLARI = {
+            max: 1000,              // Maksimum enerji
+            tapEnerji: 1,           // Her tap'te kaç enerji gider
+            yenilenmeSaniye: 10,    // Kaç saniyede 1 enerji gelir
+            yenilenmeMiktar: 1       // Kaç enerji gelir
+        };
         
-        document.getElementById('tapButton').onclick = function() {
-            balance++;
-            document.getElementById('balance').textContent = balance;
-            
+        const SEVIYELER = [
+            { ad: "Starter", minTap: 0, carpan: 1.0, renk: "text-gray-400" },
+            { ad: "Bronze", minTap: 100, carpan: 1.2, renk: "text-amber-600" },
+            { ad: "Silver", minTap: 500, carpan: 1.5, renk: "text-gray-300" },
+            { ad: "Gold", minTap: 1000, carpan: 2.0, renk: "text-yellow-400" },
+            { ad: "Platinum", minTap: 5000, carpan: 3.0, renk: "text-blue-400" },
+            { ad: "Diamond", minTap: 10000, carpan: 5.0, renk: "text-purple-400" },
+            { ad: "Legend", minTap: 50000, carpan: 10.0, renk: "text-red-400" }
+        ];
+        
+        // ---------- GÖREVLER (İstediğin kadar ekle/çıkar!) ----------
+        const GOREVLER = [
+            { 
+                id: 1, 
+                ad: "Telegram Kanalına Katıl", 
+                odul: 50, 
+                tip: "link",
+                link: "https://t.me/novapex",
+                zorluk: "Kolay",
+                aktif: true
+            },
+            { 
+                id: 2, 
+                ad: "100 Tap Yap", 
+                odul: 100, 
+                tip: "tap",
+                hedef: 100,
+                zorluk: "Kolay",
+                aktif: true
+            },
+            { 
+                id: 3, 
+                ad: "500 Tap Yap", 
+                odul: 250, 
+                tip: "tap",
+                hedef: 500,
+                zorluk: "Orta",
+                aktif: true
+            },
+            { 
+                id: 4, 
+                ad: "Arkadaş Davet Et", 
+                odul: 500, 
+                tip: "referral",
+                zorluk: "Zor",
+                aktif: true
+            },
+            { 
+                id: 5, 
+                ad: "Günde 100 Tap", 
+                odul: 200, 
+                tip: "daily",
+                hedef: 100,
+                zorluk: "Orta",
+                aktif: true
+            }
+            // İLERİDE YENİ GÖREV EKLEMEK İÇİN:
+            // { id: 6, ad: "Yeni Görev", odul: 1000, tip: "...", aktif: true },
+        ];
+        
+        // ---------- KULLANICI VERİSİ ----------
+        let userData = {
+            napx: 0,
+            taps: 0,
+            energy: ENERJI_AYARLARI.max,
+            tamamlananGorevler: []
+        };
+        
+        const tg = Telegram?.WebApp;
+        
+        // ---------- SAYFA YÜKLENİNCE ----------
+        window.onload = function() {
             if (tg) {
-                tg.CloudStorage.setItem('napx_balance', balance.toString());
-                tg.HapticFeedback?.impactOccurred('light');
+                tg.expand();
+                tg.ready();
+                
+                // Telegram kullanıcı adını al
+                const user = tg.initDataUnsafe?.user;
+                if (user?.first_name) {
+                    document.getElementById('userName').textContent = user.first_name;
+                }
+                
+                // CloudStorage'dan verileri yükle (KALICI!)
+                tg.CloudStorage.getItem('novapex_data', function(err, value) {
+                    if (value) {
+                        try {
+                            const saved = JSON.parse(value);
+                            userData.napx = saved.napx || 0;
+                            userData.taps = saved.taps || 0;
+                            userData.energy = saved.energy ?? ENERJI_AYARLARI.max;
+                            userData.tamamlananGorevler = saved.tamamlananGorevler || [];
+                        } catch(e) {}
+                    }
+                    updateScreen();
+                    gorevleriGoster();
+                });
+            }
+            
+            // Enerji yenilenme zamanlayıcısı
+            setInterval(yenilenEnerji, ENERJI_AYARLARI.yenilenmeSaniye * 1000);
+        };
+        
+        // ---------- TAP BUTONU ----------
+        document.getElementById('tapButton').onclick = function() {
+            if (userData.energy >= ENERJI_AYARLARI.tapEnerji) {
+                // Kazancı hesapla (seviye çarpanı ile)
+                const seviye = seviyeBul(userData.taps);
+                const kazanilan = Math.floor(1 * seviye.carpan);
+                
+                userData.napx += kazanilan;
+                userData.taps += 1;
+                userData.energy -= ENERJI_AYARLARI.tapEnerji;
+                
+                updateScreen();
+                kaydet();
+                gorevleriKontrolEt('tap');
+                
+                // Titreşim
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('light');
+                }
             }
         };
+        
+        // ---------- ENERJİ YENİLENME ----------
+        function yenilenEnerji() {
+            if (userData.energy < ENERJI_AYARLARI.max) {
+                userData.energy = Math.min(
+                    ENERJI_AYARLARI.max, 
+                    userData.energy + ENERJI_AYARLARI.yenilenmeMiktar
+                );
+                updateScreen();
+                kaydet();
+            }
+        }
+        
+        // ---------- SEVİYE BUL ----------
+        function seviyeBul(tapSayisi) {
+            for (let i = SEVIYELER.length - 1; i >= 0; i--) {
+                if (tapSayisi >= SEVIYELER[i].minTap) {
+                    return SEVIYELER[i];
+                }
+            }
+            return SEVIYELER[0];
+        }
+        
+        // ---------- EKRANI GÜNCELLE ----------
+        function updateScreen() {
+            document.getElementById('napxBalance').textContent = userData.napx;
+            document.getElementById('totalTaps').textContent = userData.taps;
+            
+            // Enerji
+            const enerjiYuzde = (userData.energy / ENERJI_AYARLARI.max) * 100;
+            document.getElementById('energyBar').style.width = enerjiYuzde + '%';
+            document.getElementById('energyText').textContent = `${userData.energy}/${ENERJI_AYARLARI.max}`;
+            
+            // Seviye
+            const seviye = seviyeBul(userData.taps);
+            document.getElementById('userLevel').textContent = seviye.ad;
+            document.getElementById('multiplier').textContent = seviye.carpan + 'x';
+        }
+        
+        // ---------- GÖREVLERİ GÖSTER ----------
+        function gorevleriGoster() {
+            const container = document.getElementById('gorevlerListesi');
+            let html = '';
+            
+            GOREVLER.forEach(gorev => {
+                if (!gorev.aktif) return;
+                
+                const tamamlandi = userData.tamamlananGorevler.includes(gorev.id);
+                const disabled = tamamlandi ? 'opacity-50 pointer-events-none' : '';
+                
+                html += `
+                    <div class="bg-white/5 rounded-xl p-3 border border-white/10 ${disabled}">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="font-medium">${gorev.ad}</div>
+                                <div class="text-xs text-gray-400">+${gorev.odul} NAPX • ${gorev.zorluk}</div>
+                            </div>
+                            <button onclick="gorevYap(${gorev.id})" class="px-3 py-1 bg-purple-500/20 rounded-lg text-xs text-purple-300">
+                                ${tamamlandi ? '✓ Tamamlandı' : 'Yap'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // ---------- GÖREV YAP ----------
+        window.gorevYap = function(gorevId) {
+            const gorev = GOREVLER.find(g => g.id === gorevId);
+            if (!gorev || userData.tamamlananGorevler.includes(gorev.id)) return;
+            
+            if (gorev.tip === 'link') {
+                // Link görevi
+                window.open(gorev.link, '_blank');
+                
+                // Ödülü hemen ver
+                userData.napx += gorev.odul;
+                userData.tamamlananGorevler.push(gorev.id);
+                updateScreen();
+                kaydet();
+                gorevleriGoster();
+                
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }
+            // Diğer görev tipleri için kontroller buraya eklenecek
+        };
+        
+        // ---------- GÖREV KONTROL (Tap bazlı) ----------
+        function gorevleriKontrolEt(tip) {
+            GOREVLER.forEach(gorev => {
+                if (gorev.tip === tip && !userData.tamamlananGorevler.includes(gorev.id)) {
+                    if (tip === 'tap' && userData.taps >= gorev.hedef) {
+                        // Tap görevi tamamlandı
+                        userData.napx += gorev.odul;
+                        userData.tamamlananGorevler.push(gorev.id);
+                        updateScreen();
+                        kaydet();
+                        
+                        if (tg?.HapticFeedback) {
+                            tg.HapticFeedback.notificationOccurred('success');
+                        }
+                    }
+                }
+            });
+            gorevleriGoster();
+        }
+        
+        // ---------- CLOUDSTORAGE'A KAYDET (KALICI!) ----------
+        function kaydet() {
+            if (tg) {
+                tg.CloudStorage.setItem('novapex_data', JSON.stringify({
+                    napx: userData.napx,
+                    taps: userData.taps,
+                    energy: userData.energy,
+                    tamamlananGorevler: userData.tamamlananGorevler
+                }));
+            }
+        }
     </script>
 </body>
 </html>
