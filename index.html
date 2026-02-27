@@ -897,37 +897,23 @@
         }
         
         function kaydet() {
-    if (tg) {
-        // Telegram CloudStorage'a kaydet (yedek)
-        tg.CloudStorage.setItem('novapex_referral_boost', JSON.stringify({
-            napx: userData.napx,
-            farmed: userData.farmed,
-            lastClaim: userData.lastClaim,
-            tamamlananGorevler: userData.tamamlananGorevler,
-            referrals: userData.referrals,
-            totalReferrals: userData.totalReferrals,
-            referralEarnings: userData.referralEarnings,
-            activeBoost: userData.activeBoost,
-            boostEndTime: userData.boostEndTime,
-            boostRights: userData.boostRights,
-            firstTapDone: userData.firstTapDone
-        }));
-        
-        // Supabase'e kaydet (admin paneli için) - async ama bekleme
-        fetch('https://novapex.vercel.app/api/update-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                telegram_id: userData.userId,
-                first_name: document.getElementById('userName').textContent,
-                napx_balance: userData.napx,
-                total_taps: userData.taps || 0,
-                level: seviyeBul(userData.napx).ad
-            })
-        }).catch(e => console.log('Supabase save error:', e));
-    }
+    fetch('https://novapex.vercel.app/api/update-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            telegram_id: userData.userId,
+            first_name: document.getElementById('userName').textContent,
+            napx_balance: userData.napx,
+            total_taps: userData.taps || 0,
+            level: seviyeBul(userData.napx).ad
+        })
+    })
+    .then(res => res.json())
+    .then(data => console.log('✅ Supabase kaydedildi:', data))
+    .catch(e => console.log('❌ Supabase hatası:', e));
 }
     </script>
 </body>
 </html>
+
 
