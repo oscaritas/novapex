@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
-  'https://senin-proje-url.supabase.co',
-  'senin-anon-key'
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
 )
 
 export default async function handler(req, res) {
@@ -13,18 +13,23 @@ export default async function handler(req, res) {
         const { telegramId } = req.query;
         
         try {
-            const { data: user } = await supabase
+            const { data: user, error } = await supabase
                 .from('users')
                 .select('*')
                 .eq('telegram_id', telegramId)
                 .single();
             
-            if (user) {
-                res.status(200).json(user);
-            } else {
-                res.status(404).json({ error: 'User not found' });
+            if (error && error.code === 'PGRST116') {
+                // Kayıt bulunamadı
+                return res.status(404).json({ error: 'User not found' });
             }
+            
+            if (error) throw error;
+            
+            res.status(200).json(user);
+            
         } catch (error) {
+            console.error('Get user error:', error);
             res.status(500).json({ error: 'Server error' });
         }
     } else {
