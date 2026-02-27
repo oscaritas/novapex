@@ -1,18 +1,18 @@
 {
-  "builds": [
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
+  "version": 2,
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.js"
+    },
     {
       "src": "/admin.html",
       "dest": "/admin.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",
