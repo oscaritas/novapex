@@ -2,117 +2,930 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovApex • Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NovApex • NAPX • Referral Boost</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        
         * { font-family: 'Orbitron', sans-serif; }
-        body {
+        
+        body { 
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh;
             background: #030014;
             color: white;
-            min-height: 100vh;
-            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
         }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.25) 0%, transparent 40%),
+                        linear-gradient(145deg, #020617 0%, #000000 100%);
+            z-index: -2;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="20" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="80" cy="70" r="0.5" fill="white" opacity="0.2"/></svg>');
+            background-size: 200px 200px;
+            opacity: 0.5;
+            z-index: -1;
+            animation: yildizKaymasi 60s linear infinite;
+        }
+        
+        @keyframes yildizKaymasi {
+            from { transform: translateY(0) translateX(0); }
+            to { transform: translateY(-100px) translateX(100px); }
+        }
+        
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .claim-button {
+            background: linear-gradient(145deg, #8B5CF6, #3B82F6);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+            transition: all 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .claim-button:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8);
+        }
+        
+        .claim-button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        
+        .claim-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .collapsible.open {
+            max-height: 500px;
+        }
+        
+        .apex-glow {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .apex-glow::after {
+            content: '▲';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: rgba(255, 215, 0, 0.6);
+            text-shadow: 0 0 20px gold;
+            animation: apexYuksel 2s infinite;
+        }
+        
+        @keyframes apexYuksel {
+            0%, 100% { top: -20px; opacity: 0.6; }
+            50% { top: -30px; opacity: 1; }
+        }
+        
+        .boost-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .boost-card:hover:not(.locked) {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        .boost-card.selected {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8B5CF6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+        
+        .boost-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+        
+        .boost-card.locked::before {
+            content: '🔒';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 12px;
+        }
+        
+        .usage-badge {
+            background: rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 10px;
+            color: #8B5CF6;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            height: 100%;
+            border-radius: 9999px;
+        }
+        
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
         }
     </style>
 </head>
 <body>
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-4xl font-black mb-8 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-            🚀 NovApex Admin Panel
-        </h1>
+    <div class="max-w-md mx-auto p-4 pb-8">
         
-        <!-- İstatistikler -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="glass-card p-6">
-                <div class="text-gray-400 text-sm">Toplam Kullanıcı</div>
-                <div class="text-3xl font-bold text-purple-400" id="totalUsers">0</div>
-            </div>
-            <div class="glass-card p-6">
-                <div class="text-gray-400 text-sm">Toplam NAPX</div>
-                <div class="text-3xl font-bold text-green-400" id="totalNAPX">0</div>
-            </div>
-            <div class="glass-card p-6">
-                <div class="text-gray-400 text-sm">Ortalama NAPX</div>
-                <div class="text-3xl font-bold text-blue-400" id="avgNAPX">0</div>
-            </div>
-            <div class="glass-card p-6">
-                <div class="text-gray-400 text-sm">En Yüksek</div>
-                <div class="text-3xl font-bold text-yellow-400" id="highestNAPX">0</div>
+        <!-- ========== ÜST KART ========== -->
+        <div class="glass-card p-6 mb-4 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/30 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-600/30 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10 flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-2xl font-bold shadow-lg border-2 border-white/30">
+                    <span id="userInitial">N</span>
+                </div>
+                <div>
+                    <div class="text-gray-300 text-sm" id="userName">Nova Kaşifi</div>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <span class="text-4xl font-black text-white" id="napxBalance">0</span>
+                        <span class="text-purple-300 font-bold">NAPX</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs px-2 py-0.5 bg-purple-500/30 rounded-full text-purple-200 border border-purple-400/30" id="userLevelBadge">Starter</span>
+                        <span class="text-xs text-gray-400">Seviye</span>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <!-- Kullanıcı Listesi -->
-        <div class="glass-card p-6">
-            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
-                <span>👥</span>
-                <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Kullanıcı Listesi</span>
-            </h2>
+        <!-- ========== REFERRAL ÖZET KARTI ========== -->
+        <div class="glass-card p-4 mb-4">
+            <div class="flex justify-between items-center">
+                <div class="text-center flex-1">
+                    <div class="text-2xl font-bold text-purple-400" id="totalReferrals">0</div>
+                    <div class="text-xs text-gray-400">Toplam Davet</div>
+                </div>
+                <div class="text-center flex-1">
+                    <div class="text-2xl font-bold text-green-400" id="referralEarnings">0</div>
+                    <div class="text-xs text-gray-400">Kazanılan NAPX</div>
+                </div>
+                <div class="text-center flex-1">
+                    <div class="text-2xl font-bold text-blue-400" id="availableBoosts">0</div>
+                    <div class="text-xs text-gray-400">Kullanılabilir Boost</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== CLAIM KARTI ========== -->
+        <div class="glass-card p-6 mb-4 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-blue-600/10"></div>
             
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="text-gray-400 border-b border-white/10">
-                            <th class="text-left py-3 px-4">ID</th>
-                            <th class="text-left py-3 px-4">Telegram ID</th>
-                            <th class="text-left py-3 px-4">İsim</th>
-                            <th class="text-left py-3 px-4">NAPX</th>
-                            <th class="text-left py-3 px-4">Seviye</th>
-                            <th class="text-left py-3 px-4">Kayıt Tarihi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody">
-                        <tr><td colspan="6" class="text-center py-8 text-gray-500">Yükleniyor...</td></tr>
-                    </tbody>
-                </table>
+            <div class="relative z-10">
+                <div class="text-sm text-gray-400 mb-2 flex items-center justify-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Pasif Kazanç</span>
+                </div>
+                
+                <div class="text-5xl font-black text-white mb-2" id="farmedAmount">0</div>
+                <div class="text-purple-300 text-sm mb-4">NAPX hazır</div>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>Claim'e kalan</span>
+                        <span class="text-white font-mono" id="claimTimer">01:00:00</span>
+                    </div>
+                    <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                        <div id="farmProgress" class="progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <button id="claimButton" class="claim-button w-full py-5 rounded-2xl font-black text-xl text-white disabled:opacity-50 shadow-2xl">
+                    ⚡ CLAIM ⚡
+                </button>
+                
+                <div class="mt-3 text-xs text-gray-500">
+                    💰 Saatlik <span id="hourlyRate">9</span> NAPX • Seviye x<span id="multiplier">1.0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========== SEVİYE İLERLEME ========== -->
+        <div class="glass-card p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-400">Seviye İlerlemesi</span>
+                <span class="text-xs text-purple-300" id="nextLevelDisplay">Bronze'e 1000 NAPX</span>
+            </div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-1">
+                <div id="levelProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-xs">
+                <span class="text-white" id="userLevelDisplay">Starter</span>
+                <span class="text-gray-400" id="levelProgressText">0/1000</span>
+            </div>
+        </div>
+        
+        <!-- ========== BOOST BÖLÜMÜ ========== -->
+        <div class="glass-card p-4 mb-3">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('boost')">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-2xl">🚀</span>
+                    <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">NOVA BOOST</span>
+                </h2>
+                <span id="boostToggle" class="text-2xl text-purple-400">▼</span>
             </div>
             
-            <div class="mt-4 text-xs text-gray-500 text-right" id="lastUpdate"></div>
+            <div id="boostSection" class="collapsible mt-3">
+                <div id="activeBoostDisplay" class="bg-purple-500/20 border border-purple-500/30 rounded-xl p-3 mb-3 text-sm hidden">
+                    <div class="flex justify-between items-center">
+                        <span>⚡ Aktif Boost:</span>
+                        <span id="activeBoostText" class="text-purple-400 font-bold">Yok</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 mb-3">
+                    <div id="boost1" class="boost-card p-3" onclick="selectBoost(1)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">⚡</span>
+                                <div>
+                                    <div class="font-bold text-white">Turbo Boost</div>
+                                    <div class="text-xs text-gray-400">30 dk • 2x kazanç</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div id="boost1Usage" class="usage-badge">0/10 ref</div>
+                                <div class="text-xs text-gray-500 mt-1">10 ref gerekli</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="boost2" class="boost-card p-3" onclick="selectBoost(2)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">🔋</span>
+                                <div>
+                                    <div class="font-bold text-white">Süper Boost</div>
+                                    <div class="text-xs text-gray-400">60 dk • 3x kazanç</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div id="boost2Usage" class="usage-badge">0/30 ref</div>
+                                <div class="text-xs text-gray-500 mt-1">30 ref gerekli</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="boost3" class="boost-card p-3" onclick="selectBoost(3)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">🚀</span>
+                                <div>
+                                    <div class="font-bold text-white">Mega Boost</div>
+                                    <div class="text-xs text-gray-400">120 dk • 5x kazanç</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div id="boost3Usage" class="usage-badge">0/50 ref</div>
+                                <div class="text-xs text-gray-500 mt-1">50 ref gerekli</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="useBoostButton" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg opacity-50 cursor-not-allowed" disabled>
+                    Boost Seçin
+                </button>
+            </div>
+        </div>
+        
+        <!-- ========== GÖREVLER ========== -->
+        <div class="glass-card p-4 mb-3">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('tasks')">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-2xl">⚡</span>
+                    <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">NOVA GÖREVLER</span>
+                </h2>
+                <span id="tasksToggle" class="text-2xl text-purple-400">▼</span>
+            </div>
+            
+            <div id="tasksSection" class="collapsible mt-3">
+                <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+        
+        <!-- ========== DAVET ========== -->
+        <div class="glass-card p-4 mb-3">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('referral')">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-2xl">👥</span>
+                    <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">APEX DAVET</span>
+                </h2>
+                <span id="referralToggle" class="text-2xl text-purple-400">▼</span>
+            </div>
+            
+            <div id="referralSection" class="collapsible mt-3">
+                <div class="mb-3">
+                    <div class="text-xs text-gray-400 mb-2">Özel davet linkin:</div>
+                    <div class="flex gap-2">
+                        <input type="text" id="referralLink" readonly class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white" value="Yükleniyor...">
+                        <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 text-purple-300 hover:bg-purple-500/30 transition-all">
+                            Kopyala
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-400 bg-white/5 p-3 rounded-lg border border-white/10">
+                    <span class="text-purple-400 font-bold">💰 +500 NAPX</span> her davette<br>
+                    <span class="text-purple-400 font-bold">🎁 +200 NAPX</span> arkadaşın ilk claim'inde<br>
+                    <span class="text-purple-400 font-bold">🚀 10/30/50 referansta</span> boost hakları
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-6 text-xs text-gray-600 flex justify-center items-center gap-2">
+            <span>✨ NOVA</span>
+            <span class="text-purple-500">⚡</span>
+            <span class="apex-glow">APEX</span>
         </div>
     </div>
 
     <script>
-        async function loadUsers() {
+        // =============================================
+        // NOVAPEX - SADECE CLOUDSTORAGE (KALICI VERİ)
+        // =============================================
+        
+        const tg = Telegram?.WebApp;
+        
+        // Sabitler
+        const FARM_AYARLARI = { claimSuresi: 3600 }; // 1 saat
+        const KANAL_LINKI = "https://t.me/novapex_official";
+        const STORAGE_KEY = 'novapex_kullanici_verisi';
+        
+        // Boost seçenekleri
+        const BOOSTLAR = {
+            1: { ad: "Turbo Boost", requiredRef: 10, sure: 30, carpan: 2 },
+            2: { ad: "Süper Boost", requiredRef: 30, sure: 60, carpan: 3 },
+            3: { ad: "Mega Boost", requiredRef: 50, sure: 120, carpan: 5 }
+        };
+        
+        // Seviyeler
+        const SEVIYELER = [
+            { ad: "Starter", minNAPX: 0, carpan: 1.0, saatlik: 9, next: 1000 },
+            { ad: "Bronze", minNAPX: 1000, carpan: 1.2, saatlik: 12, next: 5000 },
+            { ad: "Silver", minNAPX: 5000, carpan: 1.5, saatlik: 15, next: 10000 },
+            { ad: "Gold", minNAPX: 10000, carpan: 2.0, saatlik: 20, next: 50000 },
+            { ad: "Platinum", minNAPX: 50000, carpan: 3.0, saatlik: 30, next: 100000 },
+            { ad: "Diamond", minNAPX: 100000, carpan: 5.0, saatlik: 50, next: 500000 },
+            { ad: "Legend", minNAPX: 500000, carpan: 10.0, saatlik: 100, next: null }
+        ];
+        
+        // Görevler
+        const GOREVLER = [
+            { id: 1, ad: "Telegram Kanalına Katıl", odul: 50, tip: "link", link: KANAL_LINKI, aktif: true },
+            { id: 2, ad: "İlk Claim'i Yap", odul: 100, tip: "claim", aktif: true },
+            { id: 3, ad: "100 NAPX Kazan", odul: 150, tip: "napx", hedef: 100, aktif: true },
+            { id: 4, ad: "500 NAPX Kazan", odul: 300, tip: "napx", hedef: 500, aktif: true },
+            { id: 5, ad: "Arkadaş Davet Et", odul: 500, tip: "referral", aktif: true }
+        ];
+        
+        // Varsayılan kullanıcı verisi
+        const DEFAULT_USER_DATA = {
+            napx: 0,
+            farmed: 0,
+            lastClaim: Date.now(),
+            tamamlananGorevler: [],
+            referrals: [],
+            totalReferrals: 0,
+            referralEarnings: 0,
+            userId: null,
+            activeBoost: null,
+            boostEndTime: null,
+            boostRights: { 1: 0, 2: 0, 3: 0 }
+        };
+        
+        let userData = { ...DEFAULT_USER_DATA };
+        let claimInterval;
+        let selectedBoost = null;
+        let boostTimer = null;
+        let veriYuklendi = false;
+        
+        // Açılır bölümler
+        let sections = { boost: false, tasks: false, referral: false };
+        
+        // ========== SAYFA YÜKLENDİĞİNDE ==========
+        window.onload = function() {
+            console.log("Novapex başlatılıyor...");
+            
+            if (tg) {
+                tg.expand(); 
+                tg.ready();
+                
+                const user = tg.initDataUnsafe?.user;
+                if (user?.id) {
+                    userData.userId = user.id.toString();
+                    if (user.first_name) {
+                        document.getElementById('userName').textContent = user.first_name;
+                        document.getElementById('userInitial').textContent = user.first_name.charAt(0);
+                    }
+                    updateReferralLink();
+                }
+                
+                // VERİYİ YÜKLE (CloudStorage'dan)
+                tg.CloudStorage.getItem(STORAGE_KEY, function(err, value) {
+                    console.log("CloudStorage'dan veri alındı:", value ? "Var" : "Yok");
+                    
+                    if (value && value !== "null" && value !== "undefined") {
+                        try {
+                            const savedData = JSON.parse(value);
+                            // Kaydedilmiş veriyi yükle
+                            userData = { ...DEFAULT_USER_DATA, ...savedData, userId: userData.userId };
+                            
+                            // Boost süresi dolmuş mu kontrol et
+                            if (userData.boostEndTime && userData.boostEndTime < Date.now()) {
+                                userData.activeBoost = null;
+                                userData.boostEndTime = null;
+                            }
+                            
+                            console.log("Veri yüklendi:", userData);
+                        } catch(e) {
+                            console.log("Veri parse hatası, varsayılan kullanılıyor:", e);
+                            userData = { ...DEFAULT_USER_DATA, userId: userData.userId };
+                        }
+                    } else {
+                        console.log("Kayıtlı veri yok, varsayılan kullanılıyor");
+                        userData = { ...DEFAULT_USER_DATA, userId: userData.userId };
+                    }
+                    
+                    // lastClaim yoksa şimdi olarak ayarla
+                    if (!userData.lastClaim) userData.lastClaim = Date.now();
+                    
+                    // Referans sayısına göre boost haklarını güncelle
+                    updateBoostRights();
+                    
+                    // Ekranı güncelle
+                    updateScreen();
+                    gorevleriGoster();
+                    
+                    // Timer'ları başlat
+                    startFarmTimer();
+                    if (userData.activeBoost) {
+                        updateBoostDisplay();
+                        startBoostTimer();
+                    }
+                    
+                    // Referans kontrolü yap
+                    checkForReferral();
+                    
+                    veriYuklendi = true;
+                });
+            }
+            
+            // Buton olaylarını bağla
+            document.getElementById('claimButton').onclick = claimFarm;
+            document.getElementById('copyLinkButton').onclick = copyReferralLink;
+            document.getElementById('useBoostButton').onclick = useBoost;
+        };
+        
+        // ========== KAYDET (CloudStorage'a) ==========
+        function kaydet() {
+            if (!tg || !veriYuklendi) return;
+            
             try {
-                const res = await fetch('/api/users');
-                const data = await res.json();
+                // Veriyi string'e çevir
+                const veriString = JSON.stringify({
+                    napx: userData.napx,
+                    farmed: userData.farmed,
+                    lastClaim: userData.lastClaim,
+                    tamamlananGorevler: userData.tamamlananGorevler,
+                    referrals: userData.referrals,
+                    totalReferrals: userData.totalReferrals,
+                    referralEarnings: userData.referralEarnings,
+                    activeBoost: userData.activeBoost,
+                    boostEndTime: userData.boostEndTime,
+                    boostRights: userData.boostRights
+                });
                 
-                if (data.error) throw new Error(data.error);
-                
-                // İstatistikleri güncelle
-                document.getElementById('totalUsers').textContent = data.stats.totalUsers;
-                document.getElementById('totalNAPX').textContent = data.stats.totalNAPX;
-                document.getElementById('avgNAPX').textContent = data.stats.averageNAPX;
-                document.getElementById('highestNAPX').textContent = data.stats.highestNAPX;
-                
-                // Kullanıcı listesini göster
-                const tbody = document.getElementById('userTableBody');
-                tbody.innerHTML = data.users.map(user => `
-                    <tr class="border-b border-white/5 hover:bg-white/5">
-                        <td class="py-3 px-4">${user.id}</td>
-                        <td class="py-3 px-4 font-mono text-xs">${user.telegram_id}</td>
-                        <td class="py-3 px-4">${user.first_name || 'Nova Kaşifi'}</td>
-                        <td class="py-3 px-4 font-bold text-purple-400">${user.napx_balance || 0}</td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 bg-purple-500/20 rounded-full text-xs">${user.level || 'Starter'}</span></td>
-                        <td class="py-3 px-4 text-gray-400 text-xs">${new Date(user.created_at).toLocaleDateString('tr-TR')}</td>
-                    </tr>
-                `).join('');
-                
-                document.getElementById('lastUpdate').textContent = `Son güncelleme: ${new Date().toLocaleTimeString('tr-TR')}`;
-            } catch (error) {
-                document.getElementById('userTableBody').innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-400">Hata: ${error.message}</td></tr>`;
+                // CloudStorage'a kaydet
+                tg.CloudStorage.setItem(STORAGE_KEY, veriString, function(err) {
+                    if (err) {
+                        console.log("CloudStorage kayıt hatası:", err);
+                    } else {
+                        console.log("✅ Veri kaydedildi:", new Date().toLocaleTimeString());
+                    }
+                });
+            } catch(e) {
+                console.log("Kaydetme hatası:", e);
             }
         }
         
-        loadUsers();
-        setInterval(loadUsers, 30000); // 30 saniyede bir güncelle
+        // ========== REFERANS KONTROLÜ ==========
+        function checkForReferral() {
+            const startParam = tg?.initDataUnsafe?.start_param;
+            
+            // Referans varsa ve daha önce eklenmemişse
+            if (startParam && startParam !== userData.userId && !userData.referrals.includes(startParam)) {
+                
+                // Referansı ekle
+                userData.referrals.push(startParam);
+                userData.totalReferrals++;
+                userData.referralEarnings += 500;
+                userData.napx += 500;
+                
+                // Boost haklarını güncelle
+                updateBoostRights();
+                
+                // Kaydet ve ekranı güncelle
+                kaydet();
+                updateScreen();
+                
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+                
+                alert('🎉 Hoş geldin! Davet eden kişiden +500 NAPX kazandın!');
+            }
+        }
+        
+        // Referans linki güncelle
+        function updateReferralLink() {
+            if (userData.userId) {
+                document.getElementById('referralLink').value = 
+                    `https://t.me/NovApex_Official_Bot?start=${userData.userId}`;
+            }
+        }
+        
+        // Link kopyala
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink');
+            link.select();
+            navigator.clipboard?.writeText(link.value);
+            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            alert('✅ Davet linki kopyalandı!');
+        }
+        
+        // Referans sayısına göre boost haklarını hesapla
+        function updateBoostRights() {
+            userData.boostRights[1] = Math.floor(userData.totalReferrals / 10);
+            userData.boostRights[2] = Math.floor(userData.totalReferrals / 30);
+            userData.boostRights[3] = Math.floor(userData.totalReferrals / 50);
+            
+            updateBoostCards();
+        }
+        
+        // Boost kartlarını güncelle
+        function updateBoostCards() {
+            for (let i = 1; i <= 3; i++) {
+                const card = document.getElementById(`boost${i}`);
+                const usageEl = document.getElementById(`boost${i}Usage`);
+                const hak = userData.boostRights[i];
+                const required = BOOSTLAR[i].requiredRef;
+                
+                usageEl.textContent = `${hak}/${required} ref`;
+                
+                if (hak > 0) {
+                    card.classList.remove('locked');
+                    usageEl.classList.add('text-green-400');
+                    usageEl.classList.remove('text-gray-400');
+                } else {
+                    card.classList.add('locked');
+                    usageEl.classList.remove('text-green-400');
+                    usageEl.classList.add('text-gray-400');
+                }
+            }
+            
+            const totalBoosts = userData.boostRights[1] + userData.boostRights[2] + userData.boostRights[3];
+            document.getElementById('availableBoosts').textContent = totalBoosts;
+        }
+        
+        // Bölüm aç/kapa
+        window.toggleSection = function(section) {
+            sections[section] = !sections[section];
+            const element = document.getElementById(section + 'Section');
+            const toggle = document.getElementById(section + 'Toggle');
+            
+            if (sections[section]) {
+                element.classList.add('open');
+                toggle.textContent = '▲';
+            } else {
+                element.classList.remove('open');
+                toggle.textContent = '▼';
+            }
+        };
+        
+        // Boost seçimi
+        window.selectBoost = function(boostId) {
+            if (userData.boostRights[boostId] === 0) {
+                alert(`Bu boost için ${BOOSTLAR[boostId].requiredRef} referans gerekli!`);
+                return;
+            }
+            
+            selectedBoost = boostId;
+            
+            document.getElementById('boost1').classList.remove('selected');
+            document.getElementById('boost2').classList.remove('selected');
+            document.getElementById('boost3').classList.remove('selected');
+            
+            document.getElementById(`boost${boostId}`).classList.add('selected');
+            
+            const useBtn = document.getElementById('useBoostButton');
+            useBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            useBtn.disabled = false;
+            useBtn.textContent = `${BOOSTLAR[boostId].ad} Kullan (${userData.boostRights[boostId]} hakkın var)`;
+        };
+        
+        // Boost kullan
+        function useBoost() {
+            if (!selectedBoost) return;
+            if (userData.boostRights[selectedBoost] === 0) return;
+            
+            const boost = BOOSTLAR[selectedBoost];
+            
+            userData.boostRights[selectedBoost]--;
+            
+            if (userData.activeBoost) {
+                const kalanMs = userData.boostEndTime - Date.now();
+                const ekMs = boost.sure * 60 * 1000;
+                userData.boostEndTime = Date.now() + kalanMs + ekMs;
+            } else {
+                userData.activeBoost = selectedBoost;
+                userData.boostEndTime = Date.now() + (boost.sure * 60 * 1000);
+            }
+            
+            startBoostTimer();
+            updateBoostDisplay();
+            updateBoostCards();
+            
+            alert(`✅ ${boost.ad} aktif! ${boost.sure} dakika boyunca ${boost.carpan}x kazanç!`);
+            
+            selectedBoost = null;
+            document.getElementById('boost1').classList.remove('selected');
+            document.getElementById('boost2').classList.remove('selected');
+            document.getElementById('boost3').classList.remove('selected');
+            
+            const useBtn = document.getElementById('useBoostButton');
+            useBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            useBtn.disabled = true;
+            useBtn.textContent = 'Boost Seçin';
+            
+            updateScreen();
+            kaydet();
+        }
+        
+        // Boost timer başlat
+        function startBoostTimer() {
+            if (boostTimer) clearInterval(boostTimer);
+            boostTimer = setInterval(checkBoostExpiry, 1000);
+        }
+        
+        // Boost süre kontrolü
+        function checkBoostExpiry() {
+            if (userData.boostEndTime && userData.boostEndTime < Date.now()) {
+                userData.activeBoost = null;
+                userData.boostEndTime = null;
+                clearInterval(boostTimer);
+                updateBoostDisplay();
+                updateScreen();
+                kaydet();
+            }
+        }
+        
+        // Boost görüntüleme
+        function updateBoostDisplay() {
+            const display = document.getElementById('activeBoostDisplay');
+            const text = document.getElementById('activeBoostText');
+            
+            if (userData.activeBoost) {
+                const boost = BOOSTLAR[userData.activeBoost];
+                const kalanMs = userData.boostEndTime - Date.now();
+                const kalanDk = Math.floor(kalanMs / (60 * 1000));
+                const kalanSn = Math.floor((kalanMs % (60 * 1000)) / 1000);
+                
+                display.classList.remove('hidden');
+                text.textContent = `${boost.ad} - ${kalanDk}:${kalanSn.toString().padStart(2,'0')}`;
+            } else {
+                display.classList.add('hidden');
+            }
+        }
+        
+        // Gerçek saatlik kazancı hesapla
+        function getSaatlikKazanc() {
+            const seviye = seviyeBul(userData.napx);
+            let kazanc = seviye.saatlik;
+            
+            if (userData.activeBoost) {
+                const boost = BOOSTLAR[userData.activeBoost];
+                kazanc *= boost.carpan;
+            }
+            
+            return Math.floor(kazanc);
+        }
+        
+        // Claim timer
+        function startFarmTimer() {
+            if (claimInterval) clearInterval(claimInterval);
+            
+            claimInterval = setInterval(() => {
+                if (!userData.lastClaim) userData.lastClaim = Date.now();
+                
+                const now = Date.now();
+                const gecenSaniye = Math.floor((now - userData.lastClaim) / 1000);
+                const saatlikKazanc = getSaatlikKazanc();
+                
+                const progress = (gecenSaniye / FARM_AYARLARI.claimSuresi) * 100;
+                document.getElementById('farmProgress').style.width = Math.min(100, progress) + '%';
+                
+                userData.farmed = Math.min(
+                    Math.floor((gecenSaniye / 3600) * saatlikKazanc),
+                    saatlikKazanc * 24
+                );
+                
+                const kalan = Math.max(0, FARM_AYARLARI.claimSuresi - gecenSaniye);
+                const h = Math.floor(kalan / 3600);
+                const m = Math.floor((kalan % 3600) / 60);
+                const s = kalan % 60;
+                
+                document.getElementById('claimTimer').textContent = 
+                    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
+                document.getElementById('farmedAmount').textContent = userData.farmed;
+                document.getElementById('claimButton').disabled = kalan > 5; // 5 saniye hassasiyet
+                
+                if (userData.activeBoost) updateBoostDisplay();
+                
+                // Her 30 saniyede bir kaydet
+                if (gecenSaniye % 30 === 0) {
+                    kaydet();
+                }
+                
+            }, 1000);
+        }
+        
+        // Claim yap
+        function claimFarm() {
+            if (userData.farmed > 0) {
+                userData.napx += userData.farmed;
+                userData.lastClaim = Date.now();
+                userData.farmed = 0;
+                
+                updateScreen(); 
+                kaydet(); 
+                gorevleriKontrolEt('claim');
+                
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+                
+                const btn = document.getElementById('claimButton');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 100);
+            }
+        }
+        
+        // Seviye bul
+        function seviyeBul(napx) {
+            for (let i = SEVIYELER.length - 1; i >= 0; i--) {
+                if (napx >= SEVIYELER[i].minNAPX) {
+                    return SEVIYELER[i];
+                }
+            }
+            return SEVIYELER[0];
+        }
+        
+        // Ekran güncelle
+        function updateScreen() {
+            document.getElementById('napxBalance').textContent = userData.napx;
+            
+            const seviye = seviyeBul(userData.napx);
+            document.getElementById('userLevelBadge').textContent = seviye.ad;
+            document.getElementById('userLevelDisplay').textContent = seviye.ad;
+            document.getElementById('hourlyRate').textContent = getSaatlikKazanc();
+            document.getElementById('multiplier').textContent = (userData.activeBoost ? BOOSTLAR[userData.activeBoost].carpan : 1) + 'x';
+            
+            const siradaki = SEVIYELER.find(s => s.minNAPX > userData.napx) || SEVIYELER[SEVIYELER.length-1];
+            if (siradaki.next) {
+                const progress = ((userData.napx - seviye.minNAPX) / (siradaki.minNAPX - seviye.minNAPX)) * 100;
+                document.getElementById('levelProgressBar').style.width = Math.min(100, progress) + '%';
+                document.getElementById('levelProgressText').textContent = 
+                    `${userData.napx - seviye.minNAPX}/${siradaki.minNAPX - seviye.minNAPX}`;
+                document.getElementById('nextLevelDisplay').textContent = `${siradaki.ad}'e ${siradaki.minNAPX - userData.napx} NAPX`;
+            } else {
+                document.getElementById('levelProgressBar').style.width = '100%';
+                document.getElementById('levelProgressText').textContent = 'Max Seviye';
+                document.getElementById('nextLevelDisplay').textContent = 'Maksimum Seviye';
+            }
+            
+            document.getElementById('totalReferrals').textContent = userData.totalReferrals || 0;
+            document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
+        }
+        
+        // Görevleri göster
+        function gorevleriGoster() {
+            let html = '';
+            GOREVLER.forEach(g => {
+                if (!g.aktif) return;
+                const tamam = userData.tamamlananGorevler.includes(g.id);
+                html += `
+                    <div class="bg-white/5 rounded-xl p-3 border border-white/10 ${tamam ? 'opacity-50' : ''}">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="font-medium text-sm text-white">${g.ad}</div>
+                                <div class="text-xs text-gray-400">+${g.odul} NAPX</div>
+                            </div>
+                            <button onclick="gorevYap(${g.id})" class="px-3 py-1.5 bg-purple-500/20 rounded-lg text-xs text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all">
+                                ${tamam ? '✓ Tamamlandı' : 'Git'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('gorevlerListesi').innerHTML = html;
+        }
+        
+        // Görev yap
+        window.gorevYap = function(id) {
+            const gorev = GOREVLER.find(g => g.id === id);
+            if (!gorev || userData.tamamlananGorevler.includes(id)) return;
+            
+            if (gorev.tip === 'link') {
+                window.open(gorev.link, '_blank');
+                userData.napx += gorev.odul;
+                userData.tamamlananGorevler.push(id);
+                updateScreen(); 
+                kaydet(); 
+                gorevleriGoster();
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            }
+        };
+        
+        // Görevleri kontrol et
+        function gorevleriKontrolEt(tip) {
+            GOREVLER.forEach(g => {
+                if (g.tip === tip && !userData.tamamlananGorevler.includes(g.id)) {
+                    if (tip === 'claim' && !userData.tamamlananGorevler.includes(2)) {
+                        userData.napx += 100;
+                        userData.tamamlananGorevler.push(2);
+                        updateScreen(); 
+                        kaydet(); 
+                        gorevleriGoster();
+                    }
+                }
+                if (tip === 'napx' && g.tip === 'napx' && !userData.tamamlananGorevler.includes(g.id)) {
+                    if (userData.napx >= g.hedef) {
+                        userData.napx += g.odul;
+                        userData.tamamlananGorevler.push(g.id);
+                        updateScreen(); 
+                        kaydet(); 
+                        gorevleriGoster();
+                        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
