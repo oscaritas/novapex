@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NovApex • NAPX</title>
+    <title>NovApex • NAPX • Pasif</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -21,7 +21,7 @@
             overflow-x: hidden;
         }
         
-        /* Nova (Yıldız Patlaması) Arkaplan */
+        /* Nova Arkaplan */
         body::before {
             content: '';
             position: fixed;
@@ -31,12 +31,11 @@
             bottom: 0;
             background: radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.25) 0%, transparent 40%),
                         radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.25) 0%, transparent 40%),
-                        radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
                         linear-gradient(145deg, #020617 0%, #000000 100%);
             z-index: -2;
         }
         
-        /* Apex (Zirve) Işıltıları */
+        /* Yıldızlar */
         body::after {
             content: '';
             position: fixed;
@@ -44,11 +43,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="20" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="80" cy="70" r="0.5" fill="white" opacity="0.2"/><circle cx="90" cy="20" r="0.3" fill="white" opacity="0.1"/></svg>');
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="20" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="80" cy="70" r="0.5" fill="white" opacity="0.2"/></svg>');
             background-size: 200px 200px;
             opacity: 0.5;
             z-index: -1;
-            pointer-events: none;
             animation: yildizKaymasi 60s linear infinite;
         }
         
@@ -57,47 +55,58 @@
             to { transform: translateY(-100px) translateX(100px); }
         }
         
-        /* Ana container - Nova ve Apex birleşimi */
-        .nova-apex-container {
-            position: relative;
-            isolation: isolate;
+        /* Cam efekti */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
         
-        /* Yuvarlak Tap Butonu - Nova Patlaması Efekti */
-        .nova-tap-button {
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #8B5CF6, #3B82F6, #8B5CF6);
-            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8),
-                        0 0 100px rgba(59, 130, 246, 0.4),
-                        inset 0 0 50px rgba(255, 255, 255, 0.5);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            cursor: pointer;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            animation: novaPulse 3s infinite;
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(139, 92, 246, 0.3);
         }
         
-        .nova-tap-button:active {
-            transform: scale(0.92);
-            box-shadow: 0 0 80px rgba(139, 92, 246, 1),
-                        0 0 150px rgba(59, 130, 246, 0.8);
+        /* Claim butonu */
+        .claim-button {
+            background: linear-gradient(145deg, #8B5CF6, #3B82F6);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+            transition: all 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
-        @keyframes novaPulse {
-            0%, 100% { box-shadow: 0 0 50px rgba(139, 92, 246, 0.8), 0 0 100px rgba(59, 130, 246, 0.4); }
-            50% { box-shadow: 0 0 80px rgba(139, 92, 246, 1), 0 0 150px rgba(59, 130, 246, 0.8); }
+        .claim-button:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8);
+        }
+        
+        .claim-button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        
+        .claim-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Açılır bölümler */
+        .collapsible {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .collapsible.open {
+            max-height: 500px;
         }
         
         /* Apex Zirve Işığı */
         .apex-glow {
             position: relative;
+            display: inline-block;
         }
         
         .apex-glow::after {
@@ -106,7 +115,7 @@
             top: -20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 30px;
+            font-size: 24px;
             color: rgba(255, 215, 0, 0.6);
             text-shadow: 0 0 20px gold;
             animation: apexYuksel 2s infinite;
@@ -117,46 +126,33 @@
             50% { top: -30px; opacity: 1; }
         }
         
-        /* Yörüngedeki küçük yıldızlar */
-        .orbit-star {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            filter: blur(1px);
-            opacity: 0.6;
-        }
-        
-        .orbit-star-1 { top: 10%; left: 10%; animation: orbitFloat 8s infinite; }
-        .orbit-star-2 { top: 20%; right: 15%; animation: orbitFloat 12s infinite reverse; }
-        .orbit-star-3 { bottom: 15%; left: 20%; animation: orbitFloat 10s infinite; }
-        .orbit-star-4 { bottom: 25%; right: 25%; animation: orbitFloat 14s infinite reverse; }
-        
-        @keyframes orbitFloat {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
-            25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
-            50% { transform: translateY(0) translateX(20px); opacity: 0.6; }
-            75% { transform: translateY(20px) translateX(10px); opacity: 0.8; }
-        }
-        
-        /* Kartlar için yarı saydam cam efekti */
-        .glass-card {
+        /* Boost kartları */
+        .boost-card {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
         }
         
-        .energy-bar {
-            transition: width 0.3s ease;
-            background: linear-gradient(90deg, #22c55e, #10b981);
+        .boost-card:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.8);
+            transform: translateY(-2px);
         }
         
-        .farm-progress {
+        .boost-card.selected {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8B5CF6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+        
+        /* Progress bar */
+        .progress-bar {
             transition: width 0.3s ease;
             background: linear-gradient(90deg, #f59e0b, #f97316);
+            height: 100%;
+            border-radius: 9999px;
         }
         
         .pb-safe {
@@ -165,182 +161,212 @@
     </style>
 </head>
 <body>
-    <!-- Yörüngedeki yıldızlar (Nova efekti) -->
-    <div class="orbit-star orbit-star-1"></div>
-    <div class="orbit-star orbit-star-2"></div>
-    <div class="orbit-star orbit-star-3"></div>
-    <div class="orbit-star orbit-star-4"></div>
-    
-    <div class="nova-apex-container max-w-md mx-auto p-4 pb-8">
+    <div class="max-w-md mx-auto p-4 pb-8">
         
-        <!-- ========== ÜST KART (Kullanıcı ve Bakiye) ========== -->
-        <div class="glass-card p-5 mb-4 relative overflow-hidden">
-            <!-- Nova ışıltısı -->
+        <!-- ========== ÜST KART (Kullanıcı) ========== -->
+        <div class="glass-card p-6 mb-4 relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/30 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-600/30 rounded-full blur-3xl"></div>
             
-            <div class="relative z-10">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-2xl font-bold shadow-lg border-2 border-white/30">
-                        <span id="userInitial">N</span>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-gray-300 text-sm" id="userName">Nova Kaşifi</span>
-                            <span class="text-xs px-2 py-0.5 bg-purple-500/30 rounded-full text-purple-200 border border-purple-400/30" id="userLevelBadge">Starter</span>
-                        </div>
-                        <div class="flex items-baseline gap-1 mt-1">
-                            <span class="text-4xl font-black text-white" id="napxBalance">0</span>
-                            <span class="text-purple-300 font-bold">NAPX</span>
-                        </div>
-                    </div>
+            <div class="relative z-10 flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-2xl font-bold shadow-lg border-2 border-white/30">
+                    <span id="userInitial">N</span>
                 </div>
-                
-                <!-- Seviye İlerleme Çubuğu -->
-                <div class="mt-3 space-y-1">
-                    <div class="flex justify-between text-xs text-gray-400">
-                        <span>Seviye İlerlemesi</span>
-                        <span id="levelProgressText">0/100</span>
-                    </div>
-                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div id="levelProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500" style="width: 0%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-purple-300" id="userLevelDisplay">Starter</span>
-                        <span class="text-blue-300" id="nextLevelDisplay">Bronze</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== FARMING KARTI ========== -->
-        <div class="glass-card p-5 mb-4 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl"></div>
-            
-            <div class="flex justify-between items-start mb-3">
                 <div>
-                    <div class="text-sm text-gray-400 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" class="text-amber-400">
-                            <path d="M128,44a96,96,0,1,0,96,96A96.11,96.11,0,0,0,128,44Zm0,168a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,212ZM164.49,99.51a12,12,0,0,1,0,17l-28,28a12,12,0,0,1-17-17l28-28A12,12,0,0,1,164.49,99.51ZM92,16A12,12,0,0,1,104,4h48a12,12,0,0,1,0,24H104A12,12,0,0,1,92,16Z"></path>
-                        </svg>
-                        <span>Farming Status</span>
+                    <div class="text-gray-300 text-sm" id="userName">Nova Kaşifi</div>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <span class="text-4xl font-black text-white" id="napxBalance">0</span>
+                        <span class="text-purple-300 font-bold">NAPX</span>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <span class="text-3xl font-bold text-white" id="farmedAmount">0</span>
-                        <span class="text-gray-400 text-sm mb-1">NAPX</span>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs px-2 py-0.5 bg-purple-500/30 rounded-full text-purple-200 border border-purple-400/30" id="userLevelBadge">Starter</span>
+                        <span class="text-xs text-gray-400">Seviye</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 rounded-full border border-emerald-500/30">
-                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                    <span class="text-xs text-emerald-400">Active</span>
-                </div>
-            </div>
-            
-            <!-- Farming İlerleme -->
-            <div class="mb-4">
-                <div class="flex justify-between text-xs text-gray-400 mb-1">
-                    <span>Claim'e kalan</span>
-                    <span class="text-white font-mono" id="claimTimer">01:00:00</span>
-                </div>
-                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                    <div id="farmProgress" class="farm-progress h-full" style="width: 0%"></div>
-                </div>
-            </div>
-            
-            <!-- Claim ve Boost Butonları -->
-            <div class="grid grid-cols-2 gap-3">
-                <button id="claimButton" class="py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/30 transition-all">
-                    Claim
-                </button>
-                <button id="boostButton" class="py-3 rounded-xl font-bold bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all">
-                    🚀 Boost
-                </button>
             </div>
         </div>
         
-        <!-- ========== ENERJİ ÇUBUĞU ========== -->
-        <div class="glass-card p-4 mb-6">
-            <div class="flex justify-between text-sm mb-2">
-                <span class="text-gray-400">Enerji</span>
-                <span class="text-white font-mono" id="energyText">1000/1000</span>
-            </div>
-            <div class="w-full h-4 bg-white/10 rounded-full overflow-hidden">
-                <div id="energyBar" class="energy-bar h-full" style="width: 100%"></div>
-            </div>
-        </div>
-        
-        <!-- ========== TAP BUTONU (YUVARLAK) ========== -->
-        <div class="flex justify-center items-center my-8 relative apex-glow">
-            <button id="tapButton" class="nova-tap-button">
-                <span class="text-7xl mb-2 filter drop-shadow-2xl">👆</span>
-                <span class="text-3xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200">TAP</span>
-                <span class="text-sm mt-2 text-purple-200" id="tapKazanc">+1 NAPX</span>
+        <!-- ========== CLAIM KARTI (ANA ÖZELLİK) ========== -->
+        <div class="glass-card p-6 mb-4 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-blue-600/10"></div>
+            
+            <div class="relative z-10">
+                <div class="text-sm text-gray-400 mb-2 flex items-center justify-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Pasif Kazanç</span>
+                </div>
                 
-                <!-- Küçük yıldızlar (Nova patlaması efekti) -->
-                <span class="absolute -top-5 -right-5 text-yellow-300 text-2xl animate-ping">✨</span>
-                <span class="absolute -bottom-5 -left-5 text-purple-300 text-2xl animate-ping delay-100">⭐</span>
-                <span class="absolute top-1/2 -right-8 text-blue-300 animate-spin-slow">●</span>
-            </button>
-        </div>
-        
-        <!-- ========== GÖREVLER ========== -->
-        <div class="glass-card p-5 mb-4">
-            <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
-                <span class="text-2xl">⚡</span> 
-                <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">NOVA GÖREVLER</span>
-            </h2>
-            <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto pr-1">
-                <!-- Görevler JavaScript ile doldurulacak -->
-            </div>
-        </div>
-        
-        <!-- ========== DAVET BÖLÜMÜ ========== -->
-        <div class="glass-card p-5 mb-4">
-            <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
-                <span class="text-2xl">👥</span>
-                <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">APEX DAVET</span>
-            </h2>
-            
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-white/10 rounded-xl p-3 text-center">
-                    <div class="text-xs text-gray-400">Toplam Davet</div>
-                    <div class="text-xl font-bold text-purple-400" id="totalReferrals">0</div>
+                <div class="text-5xl font-black text-white mb-2" id="farmedAmount">0</div>
+                <div class="text-purple-300 text-sm mb-4">NAPX hazır</div>
+                
+                <!-- İlerleme Çubuğu -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>Claim'e kalan</span>
+                        <span class="text-white font-mono" id="claimTimer">01:00:00</span>
+                    </div>
+                    <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                        <div id="farmProgress" class="progress-bar" style="width: 0%"></div>
+                    </div>
                 </div>
-                <div class="bg-white/10 rounded-xl p-3 text-center">
-                    <div class="text-xs text-gray-400">Kazanılan</div>
-                    <div class="text-xl font-bold text-green-400" id="referralEarnings">0</div>
+                
+                <!-- Claim Butonu (DEV) -->
+                <button id="claimButton" class="claim-button w-full py-5 rounded-2xl font-black text-xl text-white disabled:opacity-50 shadow-2xl">
+                    ⚡ CLAIM ⚡
+                </button>
+                
+                <!-- Saatlik Kazanç -->
+                <div class="mt-3 text-xs text-gray-500">
+                    💰 Saatlik <span id="hourlyRate">9</span> NAPX • Seviye x<span id="multiplier">1.0</span>
                 </div>
-            </div>
-            
-            <div class="mb-3">
-                <div class="text-xs text-gray-400 mb-2">Özel davet linkin:</div>
-                <div class="flex gap-2">
-                    <input type="text" id="referralLink" readonly class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white" value="Yükleniyor...">
-                    <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 text-purple-300 hover:bg-purple-500/30 transition-all">
-                        Kopyala
-                    </button>
-                </div>
-            </div>
-            
-            <div class="text-sm text-gray-400 bg-white/5 p-3 rounded-lg border border-white/10">
-                <span class="text-purple-400 font-bold">💰 +500 NAPX</span> her davette<br>
-                <span class="text-purple-400 font-bold">🎁 +200 NAPX</span> arkadaşın ilk tap'inde
             </div>
         </div>
         
-        <!-- ========== İSTATİSTİKLER ========== -->
-        <div class="grid grid-cols-3 gap-3">
-            <div class="glass-card p-3 text-center">
-                <div class="text-xs text-gray-400">Toplam Tap</div>
-                <div class="text-lg font-bold text-white" id="totalTaps">0</div>
+        <!-- ========== SEVİYE İLERLEME ========== -->
+        <div class="glass-card p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-400">Seviye İlerlemesi</span>
+                <span class="text-xs text-purple-300" id="nextLevelDisplay">Bronze'e 100 NAPX</span>
             </div>
-            <div class="glass-card p-3 text-center">
-                <div class="text-xs text-gray-400">Saatlik</div>
-                <div class="text-lg font-bold text-purple-400" id="hourlyRate">9</div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-1">
+                <div id="levelProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500" style="width: 0%"></div>
             </div>
-            <div class="glass-card p-3 text-center">
-                <div class="text-xs text-gray-400">Çarpan</div>
-                <div class="text-lg font-bold text-blue-400" id="multiplier">1.0x</div>
+            <div class="flex justify-between text-xs">
+                <span class="text-white" id="userLevelDisplay">Starter</span>
+                <span class="text-gray-400" id="levelProgressText">0/100</span>
+            </div>
+        </div>
+        
+        <!-- ========== AÇILIR/KAPANIR BÖLÜMLER ========== -->
+        
+        <!-- 1. NOVA BOOST (Açılır/Kapanır) -->
+        <div class="glass-card p-4 mb-3">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('boost')">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-2xl">🚀</span>
+                    <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">NOVA BOOST</span>
+                </h2>
+                <span id="boostToggle" class="text-2xl text-purple-400">▼</span>
+            </div>
+            
+            <div id="boostSection" class="collapsible mt-3">
+                <!-- Aktif Boost Göstergesi -->
+                <div id="activeBoostDisplay" class="bg-purple-500/20 border border-purple-500/30 rounded-xl p-3 mb-3 text-sm hidden">
+                    <div class="flex justify-between items-center">
+                        <span>⚡ Aktif Boost:</span>
+                        <span id="activeBoostText" class="text-purple-400 font-bold">Yok</span>
+                    </div>
+                </div>
+                
+                <!-- Boost Seçenekleri -->
+                <div class="space-y-2 mb-3">
+                    <div id="boost1" class="boost-card p-3" onclick="selectBoost(1)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">⚡</span>
+                                <div>
+                                    <div class="font-bold text-white">Turbo Boost</div>
+                                    <div class="text-xs text-gray-400">30 dk • 2x kazanç</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-purple-400 font-bold">5 ⭐</div>
+                                <div class="text-xs text-gray-500">veya 0.5 TON</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="boost2" class="boost-card p-3" onclick="selectBoost(2)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">🔋</span>
+                                <div>
+                                    <div class="font-bold text-white">Süper Boost</div>
+                                    <div class="text-xs text-gray-400">60 dk • 3x kazanç</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-purple-400 font-bold">10 ⭐</div>
+                                <div class="text-xs text-gray-500">veya 1 TON</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="boost3" class="boost-card p-3" onclick="selectBoost(3)">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">🚀</span>
+                                <div>
+                                    <div class="font-bold text-white">Mega Boost</div>
+                                    <div class="text-xs text-gray-400">120 dk • 5x kazanç</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-purple-400 font-bold">20 ⭐</div>
+                                <div class="text-xs text-gray-500">veya 2 TON</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Satın Al Butonu -->
+                <button id="buyBoostButton" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg opacity-50 cursor-not-allowed" disabled>
+                    Boost Seçin
+                </button>
+            </div>
+        </div>
+        
+        <!-- 2. NOVA GÖREVLER (Açılır/Kapanır) -->
+        <div class="glass-card p-4 mb-3">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('tasks')">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-2xl">⚡</span>
+                    <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">NOVA GÖREVLER</span>
+                </h2>
+                <span id="tasksToggle" class="text-2xl text-purple-400">▼</span>
+            </div>
+            
+            <div id="tasksSection" class="collapsible mt-3">
+                <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+        
+        <!-- 3. APEX DAVET (Açılır/Kapanır) -->
+        <div class="glass-card p-4 mb-3">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('referral')">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <span class="text-2xl">👥</span>
+                    <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">APEX DAVET</span>
+                </h2>
+                <span id="referralToggle" class="text-2xl text-purple-400">▼</span>
+            </div>
+            
+            <div id="referralSection" class="collapsible mt-3">
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-white/10 rounded-xl p-3 text-center">
+                        <div class="text-xs text-gray-400">Toplam Davet</div>
+                        <div class="text-xl font-bold text-purple-400" id="totalReferrals">0</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-3 text-center">
+                        <div class="text-xs text-gray-400">Kazanılan</div>
+                        <div class="text-xl font-bold text-green-400" id="referralEarnings">0</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="text-xs text-gray-400 mb-2">Özel davet linkin:</div>
+                    <div class="flex gap-2">
+                        <input type="text" id="referralLink" readonly class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white" value="Yükleniyor...">
+                        <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 text-purple-300 hover:bg-purple-500/30 transition-all">
+                            Kopyala
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-400 bg-white/5 p-3 rounded-lg border border-white/10">
+                    <span class="text-purple-400 font-bold">💰 +500 NAPX</span> her davette<br>
+                    <span class="text-purple-400 font-bold">🎁 +200 NAPX</span> arkadaşın ilk claim'inde
+                </div>
             </div>
         </div>
         
@@ -348,47 +374,73 @@
         <div class="text-center mt-6 text-xs text-gray-600 flex justify-center items-center gap-2">
             <span>✨ NOVA</span>
             <span class="text-purple-500">⚡</span>
-            <span>APEX ⚡</span>
+            <span class="apex-glow">APEX</span>
         </div>
     </div>
 
     <script>
         // =============================================
-        // NOVAPEX - YENİ TASARIM (Günlük/Spin yok, butonlar temiz)
+        // NOVAPEX - TAPSIZ PASIF KAZANÇ
         // =============================================
         
-        const ENERJI_AYARLARI = { max: 1000, tapEnerji: 1, yenilenmeSaniye: 10, yenilenmeMiktar: 1 };
-        const FARM_AYARLARI = { saatlikKazanc: 9, claimSuresi: 3600, maxFarm: 216 };
+        const tg = Telegram?.WebApp;
+        
+        // Sabitler
+        const FARM_AYARLARI = { claimSuresi: 3600 }; // 1 saat
         const API_BASE = 'https://novapex.vercel.app/api';
         const KANAL_LINKI = "https://t.me/novapex_official";
         
-        const SEVIYELER = [
-            { ad: "Starter", minTap: 0, carpan: 1.0, next: 100, saatlik: 9 },
-            { ad: "Bronze", minTap: 100, carpan: 1.2, next: 500, saatlik: 12 },
-            { ad: "Silver", minTap: 500, carpan: 1.5, next: 1000, saatlik: 15 },
-            { ad: "Gold", minTap: 1000, carpan: 2.0, next: 5000, saatlik: 20 },
-            { ad: "Platinum", minTap: 5000, carpan: 3.0, next: 10000, saatlik: 30 },
-            { ad: "Diamond", minTap: 10000, carpan: 5.0, next: 50000, saatlik: 50 },
-            { ad: "Legend", minTap: 50000, carpan: 10.0, next: null, saatlik: 100 }
-        ];
-        
-        const GOREVLER = [
-            { id: 1, ad: "Telegram Kanalına Katıl", odul: 50, tip: "link", link: KANAL_LINKI, aktif: true },
-            { id: 2, ad: "100 Tap Yap", odul: 100, tip: "tap", hedef: 100, aktif: true },
-            { id: 3, ad: "500 Tap Yap", odul: 250, tip: "tap", hedef: 500, aktif: true },
-            { id: 4, ad: "İlk Claim'i Yap", odul: 100, tip: "claim", aktif: true },
-            { id: 5, ad: "Arkadaş Davet Et", odul: 500, tip: "referral", aktif: true },
-            { id: 6, ad: "Günde 100 Tap", odul: 200, tip: "daily", hedef: 100, aktif: true }
-        ];
-        
-        let userData = {
-            napx: 0, taps: 0, energy: 1000, farmed: 0, lastClaim: null,
-            tamamlananGorevler: [], referrals: [], totalReferrals: 0,
-            referralEarnings: 0, userId: null, firstTapDone: false
+        // Boost seçenekleri (güncellendi)
+        const BOOSTLAR = {
+            1: { ad: "Turbo Boost", fiyatStars: 5, fiyatTON: 0.5, sure: 30, carpan: 2 },
+            2: { ad: "Süper Boost", fiyatStars: 10, fiyatTON: 1, sure: 60, carpan: 3 },
+            3: { ad: "Mega Boost", fiyatStars: 20, fiyatTON: 2, sure: 120, carpan: 5 }
         };
         
-        const tg = Telegram?.WebApp;
+        // Seviyeler (tap'siz, sadece NAPX'e göre)
+        const SEVIYELER = [
+            { ad: "Starter", minNAPX: 0, carpan: 1.0, saatlik: 9, next: 1000 },
+            { ad: "Bronze", minNAPX: 1000, carpan: 1.2, saatlik: 12, next: 5000 },
+            { ad: "Silver", minNAPX: 5000, carpan: 1.5, saatlik: 15, next: 10000 },
+            { ad: "Gold", minNAPX: 10000, carpan: 2.0, saatlik: 20, next: 50000 },
+            { ad: "Platinum", minNAPX: 50000, carpan: 3.0, saatlik: 30, next: 100000 },
+            { ad: "Diamond", minNAPX: 100000, carpan: 5.0, saatlik: 50, next: 500000 },
+            { ad: "Legend", minNAPX: 500000, carpan: 10.0, saatlik: 100, next: null }
+        ];
+        
+        // Görevler
+        const GOREVLER = [
+            { id: 1, ad: "Telegram Kanalına Katıl", odul: 50, tip: "link", link: KANAL_LINKI, aktif: true },
+            { id: 2, ad: "İlk Claim'i Yap", odul: 100, tip: "claim", aktif: true },
+            { id: 3, ad: "100 NAPX Kazan", odul: 150, tip: "napx", hedef: 100, aktif: true },
+            { id: 4, ad: "500 NAPX Kazan", odul: 300, tip: "napx", hedef: 500, aktif: true },
+            { id: 5, ad: "Arkadaş Davet Et", odul: 500, tip: "referral", aktif: true }
+        ];
+        
+        // Kullanıcı verisi
+        let userData = {
+            napx: 0,
+            farmed: 0,
+            lastClaim: null,
+            tamamlananGorevler: [],
+            referrals: [],
+            totalReferrals: 0,
+            referralEarnings: 0,
+            userId: null,
+            activeBoost: null,
+            boostEndTime: null
+        };
+        
         let claimInterval;
+        let selectedBoost = null;
+        let boostTimer = null;
+        
+        // Açılır bölümlerin durumu
+        let sections = {
+            boost: false,
+            tasks: false,
+            referral: false
+        };
         
         window.onload = function() {
             if (tg) {
@@ -403,25 +455,161 @@
                     updateReferralLink();
                 }
                 
-                tg.CloudStorage.getItem('novapex_final', function(err, value) {
+                tg.CloudStorage.getItem('novapex_notap', function(err, value) {
                     if (value) {
                         try { 
                             const saved = JSON.parse(value); 
                             userData = {...userData, ...saved}; 
+                            if (userData.boostEndTime && userData.boostEndTime < Date.now()) {
+                                userData.activeBoost = null;
+                                userData.boostEndTime = null;
+                            }
                         } catch(e) {}
                     }
                     if (!userData.lastClaim) userData.lastClaim = Date.now();
-                    updateScreen(); gorevleriGoster(); startFarmTimer(); checkForReferral();
+                    updateScreen(); 
+                    gorevleriGoster(); 
+                    startFarmTimer(); 
+                    checkForReferral();
+                    if (userData.activeBoost) {
+                        updateBoostDisplay();
+                        startBoostTimer();
+                    }
                 });
             }
             
-            setInterval(yenilenEnerji, ENERJI_AYARLARI.yenilenmeSaniye * 1000);
-            
             document.getElementById('claimButton').onclick = claimFarm;
-            document.getElementById('boostButton').onclick = () => alert('🚀 Boost yakında!');
-            document.getElementById('tapButton').onclick = tap;
             document.getElementById('copyLinkButton').onclick = copyReferralLink;
+            document.getElementById('buyBoostButton').onclick = buyBoost;
         };
+        
+        // Bölüm aç/kapa
+        window.toggleSection = function(section) {
+            sections[section] = !sections[section];
+            const element = document.getElementById(section + 'Section');
+            const toggle = document.getElementById(section + 'Toggle');
+            
+            if (sections[section]) {
+                element.classList.add('open');
+                toggle.textContent = '▲';
+            } else {
+                element.classList.remove('open');
+                toggle.textContent = '▼';
+            }
+        };
+        
+        // Boost seçimi
+        window.selectBoost = function(boostId) {
+            selectedBoost = boostId;
+            
+            // Tüm boost kartlarından selected class'ını kaldır
+            document.getElementById('boost1').classList.remove('selected');
+            document.getElementById('boost2').classList.remove('selected');
+            document.getElementById('boost3').classList.remove('selected');
+            
+            // Seçilen kartı işaretle
+            document.getElementById(`boost${boostId}`).classList.add('selected');
+            
+            // Satın al butonunu aktifleştir
+            const buyBtn = document.getElementById('buyBoostButton');
+            buyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            buyBtn.disabled = false;
+            buyBtn.textContent = `${BOOSTLAR[boostId].ad} Satın Al (${BOOSTLAR[boostId].fiyatStars} ⭐)`;
+        };
+        
+        // Boost satın alma
+        function buyBoost() {
+            if (!selectedBoost) return;
+            
+            const boost = BOOSTLAR[selectedBoost];
+            
+            if (tg?.openInvoice) {
+                const confirmBuy = confirm(`${boost.ad} satın almak istediğine emin misin?\nFiyat: ${boost.fiyatStars} ⭐`);
+                
+                if (confirmBuy) {
+                    // Mevcut boost varsa üzerine ekle
+                    if (userData.activeBoost) {
+                        const currentBoost = BOOSTLAR[userData.activeBoost];
+                        const kalanMs = userData.boostEndTime - Date.now();
+                        const ekMs = boost.sure * 60 * 1000;
+                        userData.boostEndTime = Date.now() + kalanMs + ekMs;
+                    } else {
+                        userData.activeBoost = selectedBoost;
+                        userData.boostEndTime = Date.now() + (boost.sure * 60 * 1000);
+                    }
+                    
+                    startBoostTimer();
+                    updateBoostDisplay();
+                    
+                    alert(`✅ ${boost.ad} aktif! ${boost.sure} dakika boyunca ${boost.carpan}x kazanç!`);
+                    
+                    // Seçimi temizle
+                    selectedBoost = null;
+                    document.getElementById('boost1').classList.remove('selected');
+                    document.getElementById('boost2').classList.remove('selected');
+                    document.getElementById('boost3').classList.remove('selected');
+                    
+                    const buyBtn = document.getElementById('buyBoostButton');
+                    buyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    buyBtn.disabled = true;
+                    buyBtn.textContent = 'Boost Seçin';
+                    
+                    updateScreen();
+                    kaydet();
+                }
+            } else {
+                alert('Telegram ödeme sistemi henüz entegre edilmedi. Yakında!');
+            }
+        }
+        
+        // Boost timer başlat
+        function startBoostTimer() {
+            if (boostTimer) clearInterval(boostTimer);
+            boostTimer = setInterval(checkBoostExpiry, 1000);
+        }
+        
+        // Boost süre kontrolü
+        function checkBoostExpiry() {
+            if (userData.boostEndTime && userData.boostEndTime < Date.now()) {
+                userData.activeBoost = null;
+                userData.boostEndTime = null;
+                clearInterval(boostTimer);
+                updateBoostDisplay();
+                updateScreen();
+                kaydet();
+            }
+        }
+        
+        // Boost görüntüleme
+        function updateBoostDisplay() {
+            const display = document.getElementById('activeBoostDisplay');
+            const text = document.getElementById('activeBoostText');
+            
+            if (userData.activeBoost) {
+                const boost = BOOSTLAR[userData.activeBoost];
+                const kalanMs = userData.boostEndTime - Date.now();
+                const kalanDk = Math.floor(kalanMs / (60 * 1000));
+                const kalanSn = Math.floor((kalanMs % (60 * 1000)) / 1000);
+                
+                display.classList.remove('hidden');
+                text.textContent = `${boost.ad} - ${kalanDk}:${kalanSn.toString().padStart(2,'0')}`;
+            } else {
+                display.classList.add('hidden');
+            }
+        }
+        
+        // Gerçek saatlik kazancı hesapla
+        function getSaatlikKazanc() {
+            const seviye = seviyeBul(userData.napx);
+            let kazanc = seviye.saatlik;
+            
+            if (userData.activeBoost) {
+                const boost = BOOSTLAR[userData.activeBoost];
+                kazanc *= boost.carpan;
+            }
+            
+            return Math.floor(kazanc);
+        }
         
         function updateReferralLink() {
             if (userData.userId) {
@@ -448,6 +636,7 @@
                         userData.referrals.push(startParam);
                         userData.totalReferrals++;
                         userData.referralEarnings += 500;
+                        userData.napx += 500; // Direkt NAPX ekle
                         kaydet(); updateScreen();
                         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     }
@@ -455,56 +644,41 @@
             }
         }
         
-        function checkFirstTap() {
-            if (!userData.firstTapDone && userData.taps === 1 && userData.referrals.length > 0) {
-                userData.firstTapDone = true;
-                fetch(`${API_BASE}/claim-reward`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userData.referrals[0], type: 'first_tap' })
-                }).then(res => res.json()).then(data => {
-                    if (data.success) {
-                        userData.referralEarnings += 200;
-                        kaydet(); updateScreen();
-                    }
-                });
-            }
-        }
-        
-        function tap() {
-            if (userData.energy >= ENERJI_AYARLARI.tapEnerji) {
-                const seviye = seviyeBul(userData.taps);
-                const kazanilan = Math.floor(1 * seviye.carpan);
-                userData.napx += kazanilan;
-                userData.taps++;
-                userData.energy -= ENERJI_AYARLARI.tapEnerji;
-                updateScreen(); kaydet(); gorevleriKontrolEt('tap'); checkFirstTap();
-                if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-                
-                // Tap anında küçük bir görsel efekt
-                const btn = document.getElementById('tapButton');
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => btn.style.transform = 'scale(1)', 100);
-            }
-        }
-        
         function startFarmTimer() {
             if (claimInterval) clearInterval(claimInterval);
+            
             claimInterval = setInterval(() => {
                 if (!userData.lastClaim) userData.lastClaim = Date.now();
-                const gecenSaniye = Math.floor((Date.now() - userData.lastClaim) / 1000);
-                const seviye = seviyeBul(userData.taps);
-                const saatlik = seviye.saatlik || 9;
+                
+                const now = Date.now();
+                const gecenSaniye = Math.floor((now - userData.lastClaim) / 1000);
+                const saatlikKazanc = getSaatlikKazanc();
+                
+                // Progress bar
                 const progress = (gecenSaniye / FARM_AYARLARI.claimSuresi) * 100;
                 document.getElementById('farmProgress').style.width = Math.min(100, progress) + '%';
-                userData.farmed = Math.min(Math.floor((gecenSaniye / 3600) * saatlik), FARM_AYARLARI.maxFarm);
+                
+                // Biriken miktar (maksimum 24 saat)
+                userData.farmed = Math.min(
+                    Math.floor((gecenSaniye / 3600) * saatlikKazanc),
+                    saatlikKazanc * 24
+                );
+                
+                // Claim timer
                 const kalan = Math.max(0, FARM_AYARLARI.claimSuresi - gecenSaniye);
                 const h = Math.floor(kalan / 3600);
                 const m = Math.floor((kalan % 3600) / 60);
                 const s = kalan % 60;
+                
                 document.getElementById('claimTimer').textContent = 
                     `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
                 document.getElementById('farmedAmount').textContent = userData.farmed;
                 document.getElementById('claimButton').disabled = kalan > 0;
+                
+                // Boost varsa süreyi güncelle
+                if (userData.activeBoost) updateBoostDisplay();
+                
             }, 1000);
         }
         
@@ -513,54 +687,57 @@
                 userData.napx += userData.farmed;
                 userData.lastClaim = Date.now();
                 userData.farmed = 0;
-                updateScreen(); kaydet(); gorevleriKontrolEt('claim');
-                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                
+                updateScreen(); 
+                kaydet(); 
+                gorevleriKontrolEt('claim');
+                
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+                
+                // Claim anında görsel geri bildirim
+                const btn = document.getElementById('claimButton');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 100);
             }
         }
         
-        function yenilenEnerji() {
-            if (userData.energy < ENERJI_AYARLARI.max) {
-                userData.energy = Math.min(ENERJI_AYARLARI.max, userData.energy + 1);
-                updateScreen(); kaydet();
+        function seviyeBul(napx) {
+            for (let i = SEVIYELER.length - 1; i >= 0; i--) {
+                if (napx >= SEVIYELER[i].minNAPX) {
+                    return SEVIYELER[i];
+                }
             }
-        }
-        
-        function seviyeBul(tap) {
-            for (let i = SEVIYELER.length - 1; i >= 0; i--) 
-                if (tap >= SEVIYELER[i].minTap) return SEVIYELER[i];
             return SEVIYELER[0];
         }
         
         function updateScreen() {
+            // Bakiye
             document.getElementById('napxBalance').textContent = userData.napx;
-            document.getElementById('totalTaps').textContent = userData.taps;
             
-            const enerjiYuzde = (userData.energy / ENERJI_AYARLARI.max) * 100;
-            document.getElementById('energyBar').style.width = enerjiYuzde + '%';
-            document.getElementById('energyText').textContent = `${userData.energy}/${ENERJI_AYARLARI.max}`;
-            
-            const seviye = seviyeBul(userData.taps);
+            // Seviye
+            const seviye = seviyeBul(userData.napx);
             document.getElementById('userLevelBadge').textContent = seviye.ad;
             document.getElementById('userLevelDisplay').textContent = seviye.ad;
-            document.getElementById('multiplier').textContent = seviye.carpan + 'x';
-            document.getElementById('hourlyRate').textContent = seviye.saatlik || 9;
-            document.getElementById('tapKazanc').textContent = `+${Math.floor(1 * seviye.carpan)} NAPX`;
+            document.getElementById('hourlyRate').textContent = getSaatlikKazanc();
+            document.getElementById('multiplier').textContent = (userData.activeBoost ? BOOSTLAR[userData.activeBoost].carpan : 1) + 'x';
             
-            const siradaki = SEVIYELER.find(s => s.minTap > userData.taps) || SEVIYELER[SEVIYELER.length-1];
-            document.getElementById('nextLevelDisplay').textContent = siradaki?.ad || 'Max';
-            
-            const index = SEVIYELER.findIndex(s => s.ad === seviye.ad);
-            const sonraki = SEVIYELER[index + 1];
-            if (sonraki) {
-                const progress = ((userData.taps - seviye.minTap) / (sonraki.minTap - seviye.minTap)) * 100;
+            // Seviye ilerlemesi
+            const siradaki = SEVIYELER.find(s => s.minNAPX > userData.napx) || SEVIYELER[SEVIYELER.length-1];
+            if (siradaki.next) {
+                const progress = ((userData.napx - seviye.minNAPX) / (siradaki.minNAPX - seviye.minNAPX)) * 100;
                 document.getElementById('levelProgressBar').style.width = Math.min(100, progress) + '%';
                 document.getElementById('levelProgressText').textContent = 
-                    `${userData.taps - seviye.minTap}/${sonraki.minTap - seviye.minTap}`;
+                    `${userData.napx - seviye.minNAPX}/${siradaki.minNAPX - seviye.minNAPX}`;
+                document.getElementById('nextLevelDisplay').textContent = `${siradaki.ad}'e ${siradaki.minNAPX - userData.napx} NAPX`;
             } else {
                 document.getElementById('levelProgressBar').style.width = '100%';
                 document.getElementById('levelProgressText').textContent = 'Max Seviye';
+                document.getElementById('nextLevelDisplay').textContent = 'Maksimum Seviye';
             }
             
+            // Referral
             document.getElementById('totalReferrals').textContent = userData.totalReferrals || 0;
             document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
         }
@@ -590,6 +767,7 @@
         window.gorevYap = function(id) {
             const gorev = GOREVLER.find(g => g.id === id);
             if (!gorev || userData.tamamlananGorevler.includes(id)) return;
+            
             if (gorev.tip === 'link') {
                 window.open(gorev.link, '_blank');
                 userData.napx += gorev.odul;
@@ -602,16 +780,16 @@
         function gorevleriKontrolEt(tip) {
             GOREVLER.forEach(g => {
                 if (g.tip === tip && !userData.tamamlananGorevler.includes(g.id)) {
-                    if (tip === 'tap' && userData.taps >= g.hedef) {
+                    if (tip === 'claim' && !userData.tamamlananGorevler.includes(2)) {
+                        userData.napx += 100;
+                        userData.tamamlananGorevler.push(2);
+                        updateScreen(); kaydet(); gorevleriGoster();
+                    }
+                    if (tip === 'napx' && userData.napx >= g.hedef) {
                         userData.napx += g.odul;
                         userData.tamamlananGorevler.push(g.id);
                         updateScreen(); kaydet(); gorevleriGoster();
                         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    }
-                    if (tip === 'claim' && !userData.tamamlananGorevler.includes(4)) {
-                        userData.napx += g.odul;
-                        userData.tamamlananGorevler.push(4);
-                        updateScreen(); kaydet(); gorevleriGoster();
                     }
                 }
             });
@@ -619,11 +797,16 @@
         
         function kaydet() {
             if (tg) {
-                tg.CloudStorage.setItem('novapex_final', JSON.stringify({
-                    napx: userData.napx, taps: userData.taps, energy: userData.energy,
-                    lastClaim: userData.lastClaim, tamamlananGorevler: userData.tamamlananGorevler,
-                    referrals: userData.referrals, totalReferrals: userData.totalReferrals,
-                    referralEarnings: userData.referralEarnings, firstTapDone: userData.firstTapDone
+                tg.CloudStorage.setItem('novapex_notap', JSON.stringify({
+                    napx: userData.napx,
+                    farmed: userData.farmed,
+                    lastClaim: userData.lastClaim,
+                    tamamlananGorevler: userData.tamamlananGorevler,
+                    referrals: userData.referrals,
+                    totalReferrals: userData.totalReferrals,
+                    referralEarnings: userData.referralEarnings,
+                    activeBoost: userData.activeBoost,
+                    boostEndTime: userData.boostEndTime
                 }));
             }
         }
