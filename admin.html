@@ -6,115 +6,113 @@
     <title>NovApex • Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0A0A0F; color: white; font-family: system-ui; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        * { font-family: 'Orbitron', sans-serif; }
+        body {
+            background: #030014;
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+        }
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
-<body class="p-6">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+<body>
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-black mb-8 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
             🚀 NovApex Admin Panel
         </h1>
-        <p class="text-gray-400 mb-6">Tüm kullanıcı verileri</p>
         
-        <!-- İstatistik Kartları -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="glass-card p-4">
-                <div class="text-sm text-gray-400">Toplam Kullanıcı</div>
-                <div class="text-3xl font-bold text-white" id="totalUsers">0</div>
+        <!-- İstatistikler -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-card p-6">
+                <div class="text-gray-400 text-sm">Toplam Kullanıcı</div>
+                <div class="text-3xl font-bold text-purple-400" id="totalUsers">0</div>
             </div>
-            <div class="glass-card p-4">
-                <div class="text-sm text-gray-400">Toplam NAPX</div>
-                <div class="text-3xl font-bold text-purple-400" id="totalNAPX">0</div>
+            <div class="glass-card p-6">
+                <div class="text-gray-400 text-sm">Toplam NAPX</div>
+                <div class="text-3xl font-bold text-green-400" id="totalNAPX">0</div>
             </div>
-            <div class="glass-card p-4">
-                <div class="text-sm text-gray-400">Ortalama NAPX</div>
+            <div class="glass-card p-6">
+                <div class="text-gray-400 text-sm">Ortalama NAPX</div>
                 <div class="text-3xl font-bold text-blue-400" id="avgNAPX">0</div>
             </div>
-            <div class="glass-card p-4">
-                <div class="text-sm text-gray-400">En Yüksek</div>
-                <div class="text-3xl font-bold text-green-400" id="maxNAPX">0</div>
+            <div class="glass-card p-6">
+                <div class="text-gray-400 text-sm">En Yüksek</div>
+                <div class="text-3xl font-bold text-yellow-400" id="highestNAPX">0</div>
             </div>
         </div>
         
-        <!-- Kullanıcı Tablosu -->
-        <div class="glass-card p-4">
-            <h2 class="text-xl font-bold mb-4">👥 Kullanıcı Listesi</h2>
+        <!-- Kullanıcı Listesi -->
+        <div class="glass-card p-6">
+            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                <span>👥</span>
+                <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Kullanıcı Listesi</span>
+            </h2>
+            
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full text-sm">
                     <thead>
-                        <tr class="text-left text-gray-400 border-b border-white/10">
-                            <th class="pb-3">ID</th>
-                            <th class="pb-3">Telegram ID</th>
-                            <th class="pb-3">İsim</th>
-                            <th class="pb-3">NAPX</th>
-                            <th class="pb-3">Seviye</th>
-                            <th class="pb-3">Kayıt Tarihi</th>
+                        <tr class="text-gray-400 border-b border-white/10">
+                            <th class="text-left py-3 px-4">ID</th>
+                            <th class="text-left py-3 px-4">Telegram ID</th>
+                            <th class="text-left py-3 px-4">İsim</th>
+                            <th class="text-left py-3 px-4">NAPX</th>
+                            <th class="text-left py-3 px-4">Seviye</th>
+                            <th class="text-left py-3 px-4">Kayıt Tarihi</th>
                         </tr>
                     </thead>
-                    <tbody id="userTable" class="text-sm">
-                        <tr><td colspan="6" class="text-center py-4 text-gray-400">Yükleniyor...</td></tr>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="6" class="text-center py-8 text-gray-500">Yükleniyor...</td></tr>
                     </tbody>
                 </table>
             </div>
-        </div>
-        
-        <div class="text-center mt-4 text-xs text-gray-600">
-            Son güncelleme: <span id="updateTime"></span>
+            
+            <div class="mt-4 text-xs text-gray-500 text-right" id="lastUpdate"></div>
         </div>
     </div>
 
     <script>
         async function loadUsers() {
             try {
-                const res = await fetch('/api/get-user-stats');
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const res = await fetch('/api/users');
+                const data = await res.json();
                 
-                const users = await res.json();
+                if (data.error) throw new Error(data.error);
                 
-                let totalNAPX = 0;
-                let maxNAPX = 0;
-                let html = '';
+                // İstatistikleri güncelle
+                document.getElementById('totalUsers').textContent = data.stats.totalUsers;
+                document.getElementById('totalNAPX').textContent = data.stats.totalNAPX;
+                document.getElementById('avgNAPX').textContent = data.stats.averageNAPX;
+                document.getElementById('highestNAPX').textContent = data.stats.highestNAPX;
                 
-                if (users.length === 0) {
-                    html = '<tr><td colspan="6" class="text-center py-4 text-gray-400">Henüz kullanıcı yok</td></tr>';
-                } else {
-                    users.forEach(user => {
-                        totalNAPX += user.napx_balance || 0;
-                        if (user.napx_balance > maxNAPX) maxNAPX = user.napx_balance;
-                        
-                        html += `
-                            <tr class="border-b border-white/5 hover:bg-white/5">
-                                <td class="py-3">${user.id}</td>
-                                <td class="py-3 font-mono text-xs">${user.telegram_id ? user.telegram_id.substring(0,8) + '...' : '-'}</td>
-                                <td class="py-3">${user.first_name || 'İsimsiz'}</td>
-                                <td class="py-3 text-purple-400 font-bold">${user.napx_balance || 0}</td>
-                                <td class="py-3">${user.level || 'Starter'}</td>
-                                <td class="py-3 text-xs text-gray-400">${user.created_at ? new Date(user.created_at).toLocaleDateString('tr-TR') : '-'}</td>
-                            </tr>
-                        `;
-                    });
-                }
+                // Kullanıcı listesini göster
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = data.users.map(user => `
+                    <tr class="border-b border-white/5 hover:bg-white/5">
+                        <td class="py-3 px-4">${user.id}</td>
+                        <td class="py-3 px-4 font-mono text-xs">${user.telegram_id}</td>
+                        <td class="py-3 px-4">${user.first_name || 'Nova Kaşifi'}</td>
+                        <td class="py-3 px-4 font-bold text-purple-400">${user.napx_balance || 0}</td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 bg-purple-500/20 rounded-full text-xs">${user.level || 'Starter'}</span></td>
+                        <td class="py-3 px-4 text-gray-400 text-xs">${new Date(user.created_at).toLocaleDateString('tr-TR')}</td>
+                    </tr>
+                `).join('');
                 
-                document.getElementById('totalUsers').textContent = users.length;
-                document.getElementById('totalNAPX').textContent = totalNAPX;
-                document.getElementById('avgNAPX').textContent = users.length ? Math.round(totalNAPX / users.length) : 0;
-                document.getElementById('maxNAPX').textContent = maxNAPX;
-                document.getElementById('userTable').innerHTML = html;
-                document.getElementById('updateTime').textContent = new Date().toLocaleString('tr-TR');
-                
+                document.getElementById('lastUpdate').textContent = `Son güncelleme: ${new Date().toLocaleTimeString('tr-TR')}`;
             } catch (error) {
-                document.getElementById('userTable').innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-400">Hata: ${error.message}</td></tr>`;
+                document.getElementById('userTableBody').innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-400">Hata: ${error.message}</td></tr>`;
             }
         }
         
         loadUsers();
-        setInterval(loadUsers, 30000);
+        setInterval(loadUsers, 30000); // 30 saniyede bir güncelle
     </script>
 </body>
 </html>
