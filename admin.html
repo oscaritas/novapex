@@ -73,27 +73,33 @@
         async function loadUsers() {
             try {
                 const res = await fetch('/api/get-user-stats');
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                
                 const users = await res.json();
                 
                 let totalNAPX = 0;
                 let maxNAPX = 0;
                 let html = '';
                 
-                users.forEach(user => {
-                    totalNAPX += user.napx_balance || 0;
-                    if (user.napx_balance > maxNAPX) maxNAPX = user.napx_balance;
-                    
-                    html += `
-                        <tr class="border-b border-white/5 hover:bg-white/5">
-                            <td class="py-3">${user.id}</td>
-                            <td class="py-3 font-mono text-xs">${user.telegram_id ? user.telegram_id.substring(0,8) + '...' : '-'}</td>
-                            <td class="py-3">${user.first_name || 'İsimsiz'}</td>
-                            <td class="py-3 text-purple-400 font-bold">${user.napx_balance || 0}</td>
-                            <td class="py-3">${user.level || 'Starter'}</td>
-                            <td class="py-3 text-xs text-gray-400">${user.created_at ? new Date(user.created_at).toLocaleDateString('tr-TR') : '-'}</td>
-                        </tr>
-                    `;
-                });
+                if (users.length === 0) {
+                    html = '<tr><td colspan="6" class="text-center py-4 text-gray-400">Henüz kullanıcı yok</td></tr>';
+                } else {
+                    users.forEach(user => {
+                        totalNAPX += user.napx_balance || 0;
+                        if (user.napx_balance > maxNAPX) maxNAPX = user.napx_balance;
+                        
+                        html += `
+                            <tr class="border-b border-white/5 hover:bg-white/5">
+                                <td class="py-3">${user.id}</td>
+                                <td class="py-3 font-mono text-xs">${user.telegram_id ? user.telegram_id.substring(0,8) + '...' : '-'}</td>
+                                <td class="py-3">${user.first_name || 'İsimsiz'}</td>
+                                <td class="py-3 text-purple-400 font-bold">${user.napx_balance || 0}</td>
+                                <td class="py-3">${user.level || 'Starter'}</td>
+                                <td class="py-3 text-xs text-gray-400">${user.created_at ? new Date(user.created_at).toLocaleDateString('tr-TR') : '-'}</td>
+                            </tr>
+                        `;
+                    });
+                }
                 
                 document.getElementById('totalUsers').textContent = users.length;
                 document.getElementById('totalNAPX').textContent = totalNAPX;
@@ -108,7 +114,7 @@
         }
         
         loadUsers();
-        setInterval(loadUsers, 30000); // 30 saniyede bir güncelle
+        setInterval(loadUsers, 30000);
     </script>
 </body>
 </html>
