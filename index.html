@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NovApex • NAPX • Davet Sistemi</title>
+    <title>NovApex • NAPX • Supabase</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -153,19 +153,16 @@
                 <h2 class="font-bold">⚡ Görevler</h2>
                 <button id="closeTasks" class="text-xs text-gray-400">✕ Kapat</button>
             </div>
-            <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto">
-                <!-- Görevler JavaScript ile doldurulacak -->
-            </div>
+            <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto"></div>
         </div>
         
-        <!-- ========== DAVET BÖLÜMÜ (YENİ - ÇALIŞAN VERSİYON) ========== -->
+        <!-- ========== DAVET BÖLÜMÜ ========== -->
         <div id="referralSection" class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-white/10 hidden">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="font-bold">👥 Arkadaşlarını Davet Et</h2>
                 <button id="closeReferral" class="text-xs text-gray-400">✕ Kapat</button>
             </div>
             
-            <!-- Davet İstatistikleri -->
             <div class="grid grid-cols-2 gap-2 mb-3">
                 <div class="bg-white/10 rounded-xl p-2 text-center">
                     <div class="text-xs text-gray-400">Toplam Davet</div>
@@ -177,29 +174,17 @@
                 </div>
             </div>
             
-            <!-- Davet Linki -->
             <div class="mb-3">
                 <div class="text-xs text-gray-400 mb-1">Senin özel davet linkin:</div>
                 <div class="flex gap-2">
                     <input type="text" id="referralLink" readonly class="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-white" value="Yükleniyor...">
-                    <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-3 text-purple-300 text-sm">
-                        Kopyala
-                    </button>
+                    <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-3 text-purple-300 text-sm">Kopyala</button>
                 </div>
             </div>
             
-            <!-- Nasıl çalışır? -->
             <div class="text-xs text-gray-400 bg-white/5 p-2 rounded-lg">
                 <span class="text-purple-400">💰 +500 NAPX</span> her davette<br>
                 <span class="text-purple-400">🎁 +200 NAPX</span> arkadaşın ilk tap'inde
-            </div>
-            
-            <!-- Son Davetler -->
-            <div class="mt-3">
-                <div class="text-xs text-gray-400 mb-2">Son Davetler:</div>
-                <div id="recentReferrals" class="text-xs text-white/70">
-                    Henüz davet yok
-                </div>
             </div>
         </div>
         
@@ -222,60 +207,23 @@
         <!-- ========== ALT NAVIGASYON ========== -->
         <nav class="fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-xl border-t border-purple-500/20 pb-safe z-50">
             <div class="grid grid-cols-5 gap-1 max-w-md mx-auto py-1">
-                <button class="flex flex-col items-center p-2 text-purple-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M112,116a12,12,0,1,1-12-12A12,12,0,0,1,112,116Zm44-12a12,12,0,1,0,12,12A12,12,0,0,0,156,104Zm68,16v96a8,8,0,0,1-13.07,6.19l-24.26-19.85L162.4,222.19a8,8,0,0,1-10.13,0L128,202.34l-24.27,19.85a8,8,0,0,1-10.13,0L69.33,202.34,45.07,222.19A8,8,0,0,1,32,216V120a96,96,0,0,1,192,0Z"></path>
-                    </svg>
-                    <span class="text-[10px]">Farm</span>
-                </button>
-                <button class="flex flex-col items-center p-2 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M198.51,56.09C186.44,35.4,169.92,24,152,24H104C86.08,24,69.56,35.4,57.49,56.09,46.21,75.42,40,101,40,128s6.21,52.58,17.49,71.91C69.56,220.6,86.08,232,104,232h48c17.92,0,34.44-11.4,46.51-32.09C209.79,180.58,216,155,216,128S209.79,75.42,198.51,56.09Z"></path>
-                    </svg>
-                    <span class="text-[10px]">Earn</span>
-                </button>
-                <button class="flex flex-col items-center p-2 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M112.41,102.53a8,8,0,0,1,5.06-10.12l12-4A8,8,0,0,1,140,96v40a8,8,0,0,1-16,0V107.1l-1.47.49A8,8,0,0,1,112.41,102.53ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16h8V104A16,16,0,0,1,40,88H80V56A16,16,0,0,1,96,40h64a16,16,0,0,1,16,16v72h40a16,16,0,0,1,16,16v56h8A8,8,0,0,1,248,208Z"></path>
-                    </svg>
-                    <span class="text-[10px]">Leaders</span>
-                </button>
-                <button class="flex flex-col items-center p-2 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"></path>
-                    </svg>
-                    <span class="text-[10px]">Friends</span>
-                </button>
-                <button class="flex flex-col items-center p-2 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
-                        <path d="M184,89.57V84c0-25.08-37.83-44-88-44S8,58.92,8,84v40c0,20.89,26.25,37.49,64,42.46V172c0,25.08,37.83,44,88,44s88-18.92,88-44V132C248,111.3,222.58,94.68,184,89.57Z"></path>
-                    </svg>
-                    <span class="text-[10px]">Token</span>
-                </button>
+                <button class="flex flex-col items-center p-2 text-purple-400">🏠<span class="text-[10px]">Farm</span></button>
+                <button class="flex flex-col items-center p-2 text-gray-500">📊<span class="text-[10px]">Earn</span></button>
+                <button class="flex flex-col items-center p-2 text-gray-500">👑<span class="text-[10px]">Leaders</span></button>
+                <button class="flex flex-col items-center p-2 text-gray-500">👥<span class="text-[10px]">Friends</span></button>
+                <button class="flex flex-col items-center p-2 text-gray-500">💰<span class="text-[10px]">Token</span></button>
             </div>
         </nav>
     </div>
 
     <script>
         // =============================================
-        // NOVAPEX - BACKEND ENTEGRE DAVET SİSTEMİ
+        // NOVAPEX - SUPABASE ENTEGRE SON VERSİYON
         // =============================================
         
-        // ---------- AYARLAR ----------
-        const ENERJI_AYARLARI = {
-            max: 1000,
-            tapEnerji: 1,
-            yenilenmeSaniye: 10,
-            yenilenmeMiktar: 1
-        };
-        
-        const FARM_AYARLARI = {
-            saatlikKazanc: 9,
-            claimSuresi: 60 * 60,
-            maxFarm: 9 * 24
-        };
-        
-        const API_BASE = 'https://novapex.vercel.app/api'; // Senin Vercel linkin
+        const ENERJI_AYARLARI = { max: 1000, tapEnerji: 1, yenilenmeSaniye: 10, yenilenmeMiktar: 1 };
+        const FARM_AYARLARI = { saatlikKazanc: 9, claimSuresi: 3600, maxFarm: 216 };
+        const API_BASE = 'https://novapex.vercel.app/api';
         const KANAL_LINKI = "https://t.me/novapex_official";
         
         const SEVIYELER = [
@@ -288,7 +236,6 @@
             { ad: "Legend", minTap: 50000, carpan: 10.0, next: null, saatlik: 100 }
         ];
         
-        // Görevler
         const GOREVLER = [
             { id: 1, ad: "Telegram Kanalına Katıl", odul: 50, tip: "link", link: KANAL_LINKI, aktif: true },
             { id: 2, ad: "100 Tap Yap", odul: 100, tip: "tap", hedef: 100, aktif: true },
@@ -298,74 +245,46 @@
             { id: 6, ad: "Günde 100 Tap", odul: 200, tip: "daily", hedef: 100, aktif: true }
         ];
         
-        // Kullanıcı verisi
         let userData = {
-            napx: 0,
-            taps: 0,
-            energy: ENERJI_AYARLARI.max,
-            farmed: 0,
-            lastClaim: null,
-            tamamlananGorevler: [],
-            referrals: [],              // Davet edilenlerin ID'leri
-            totalReferrals: 0,
-            referralEarnings: 0,
-            userId: null,
-            firstTapDone: false
+            napx: 0, taps: 0, energy: 1000, farmed: 0, lastClaim: null,
+            tamamlananGorevler: [], referrals: [], totalReferrals: 0,
+            referralEarnings: 0, userId: null, firstTapDone: false
         };
         
         const tg = Telegram?.WebApp;
         let claimInterval;
         
-        // ---------- SAYFA YÜKLENİNCE ----------
         window.onload = function() {
             if (tg) {
-                tg.expand();
-                tg.ready();
-                
-                // Telegram kullanıcı bilgileri
+                tg.expand(); tg.ready();
                 const user = tg.initDataUnsafe?.user;
                 if (user?.id) {
                     userData.userId = user.id.toString();
-                    
                     if (user.first_name) {
                         document.getElementById('userName').textContent = user.first_name;
-                        document.getElementById('userInitial').textContent = user.first_name.charAt(0).toUpperCase();
+                        document.getElementById('userInitial').textContent = user.first_name.charAt(0);
                     }
-                    
-                    // Benzersiz referral linki oluştur
                     updateReferralLink();
                 }
                 
-                // CloudStorage'dan verileri yükle
-                tg.CloudStorage.getItem('novapex_full_v3', function(err, value) {
+                tg.CloudStorage.getItem('novapex_supabase', function(err, value) {
                     if (value) {
-                        try {
-                            const saved = JSON.parse(value);
-                            userData = {...userData, ...saved};
-                            if (!userData.lastClaim) userData.lastClaim = Date.now();
-                            if (!userData.referrals) userData.referrals = [];
+                        try { 
+                            const saved = JSON.parse(value); 
+                            userData = {...userData, ...saved}; 
                         } catch(e) {}
-                    } else {
-                        userData.lastClaim = Date.now();
                     }
-                    updateScreen();
-                    gorevleriGoster();
-                    startFarmTimer();
-                    
-                    // URL'den referral kontrolü
-                    checkForReferral();
+                    if (!userData.lastClaim) userData.lastClaim = Date.now();
+                    updateScreen(); gorevleriGoster(); startFarmTimer(); checkForReferral();
                 });
             }
             
-            // Enerji yenilenme
             setInterval(yenilenEnerji, ENERJI_AYARLARI.yenilenmeSaniye * 1000);
             
-            // Butonlar
             document.getElementById('claimButton').onclick = claimFarm;
-            document.getElementById('boostButton').onclick = boostFarm;
+            document.getElementById('boostButton').onclick = () => alert('Boost yakında!');
             document.getElementById('tapButton').onclick = tap;
             
-            // Tasks toggle
             document.getElementById('tasksButton').onclick = () => {
                 document.getElementById('tasksSection').classList.remove('hidden');
                 document.getElementById('referralSection').classList.add('hidden');
@@ -374,339 +293,204 @@
                 document.getElementById('tasksSection').classList.add('hidden');
             };
             
-            // Referral toggle
             document.getElementById('referralButton').onclick = () => {
                 document.getElementById('referralSection').classList.remove('hidden');
                 document.getElementById('tasksSection').classList.add('hidden');
-                updateRecentReferrals();
             };
             document.getElementById('closeReferral').onclick = () => {
                 document.getElementById('referralSection').classList.add('hidden');
             };
             
-            // Kopyala butonu
             document.getElementById('copyLinkButton').onclick = copyReferralLink;
         };
         
-        // ---------- REFERRAL LİNKİ OLUŞTUR ----------
         function updateReferralLink() {
             if (userData.userId) {
-                const botUsername = "NovApex_Official_Bot";
-                const link = `https://t.me/${botUsername}?start=${userData.userId}`;
-                document.getElementById('referralLink').value = link;
+                document.getElementById('referralLink').value = 
+                    `https://t.me/NovApex_Official_Bot?start=${userData.userId}`;
             }
         }
         
-        // ---------- REFERRAL LİNKİ KOPYALA ----------
         function copyReferralLink() {
-            const linkInput = document.getElementById('referralLink');
-            linkInput.select();
-            navigator.clipboard?.writeText(linkInput.value);
-            
-            if (tg?.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('success');
-            }
-            
-            // Toast gibi bildirim
+            const link = document.getElementById('referralLink');
+            link.select(); navigator.clipboard?.writeText(link.value);
+            if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             alert('✅ Davet linki kopyalandı!');
         }
         
-        // ---------- URL'DEN REFERRAL KONTROL ----------
         function checkForReferral() {
             const startParam = tg?.initDataUnsafe?.start_param;
-            if (startParam && startParam !== userData.userId) {
-                // Başkasının referral koduyla gelmiş
-                const referrerId = startParam;
-                
-                // Daha önce kaydedilmemişse
-                if (!userData.referrals.includes(referrerId)) {
-                    // Backend'e bildir - davet edene ödül ver
-                    fetch(`${API_BASE}/referral`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            referrerId: referrerId,
-                            newUserId: userData.userId
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            userData.referrals.push(referrerId);
-                            userData.totalReferrals++;
-                            kaydet();
-                            updateScreen();
-                            
-                            if (tg?.HapticFeedback) {
-                                tg.HapticFeedback.notificationOccurred('success');
-                            }
-                        }
-                    })
-                    .catch(err => console.log('Referral error:', err));
-                }
+            if (startParam && startParam !== userData.userId && !userData.referrals.includes(startParam)) {
+                fetch(`${API_BASE}/referral`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referrerId: startParam, newUserId: userData.userId })
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        userData.referrals.push(startParam);
+                        userData.totalReferrals++;
+                        userData.referralEarnings += 500;
+                        kaydet(); updateScreen();
+                        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    }
+                }).catch(err => console.log(err));
             }
         }
         
-        // ---------- İLK TAP KONTROL ----------
         function checkFirstTap() {
-            if (!userData.firstTapDone && userData.taps === 1) {
+            if (!userData.firstTapDone && userData.taps === 1 && userData.referrals.length > 0) {
                 userData.firstTapDone = true;
-                
-                // Beni davet eden varsa ona bonus
-                if (userData.referrals.length > 0) {
-                    const referrerId = userData.referrals[0]; // İlk davet eden
-                    
-                    fetch(`${API_BASE}/claim-reward`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: referrerId,
-                            type: 'first_tap'
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Davet edene ödül verildi
-                            console.log('First tap bonus sent');
-                        }
-                    });
-                }
+                fetch(`${API_BASE}/claim-reward`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userData.referrals[0], type: 'first_tap' })
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        userData.referralEarnings += 200;
+                        kaydet(); updateScreen();
+                    }
+                });
             }
         }
         
-        // ---------- TAP FONKSİYONU ----------
         function tap() {
             if (userData.energy >= ENERJI_AYARLARI.tapEnerji) {
                 const seviye = seviyeBul(userData.taps);
                 const kazanilan = Math.floor(1 * seviye.carpan);
-                
                 userData.napx += kazanilan;
-                userData.taps += 1;
+                userData.taps++;
                 userData.energy -= ENERJI_AYARLARI.tapEnerji;
-                
-                updateScreen();
-                kaydet();
-                gorevleriKontrolEt('tap');
-                checkFirstTap(); // İlk tap kontrolü
-                
-                if (tg?.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
+                updateScreen(); kaydet(); gorevleriKontrolEt('tap'); checkFirstTap();
+                if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             }
         }
         
-        // ---------- FARMING ----------
         function startFarmTimer() {
             if (claimInterval) clearInterval(claimInterval);
-            
             claimInterval = setInterval(() => {
                 if (!userData.lastClaim) userData.lastClaim = Date.now();
-                
-                const now = Date.now();
-                const gecenSaniye = Math.floor((now - userData.lastClaim) / 1000);
+                const gecenSaniye = Math.floor((Date.now() - userData.lastClaim) / 1000);
                 const seviye = seviyeBul(userData.taps);
-                const saatlikKazanc = seviye.saatlik || 9;
-                
-                const farmProgress = (gecenSaniye / FARM_AYARLARI.claimSuresi) * 100;
-                document.getElementById('farmProgress').style.width = Math.min(100, farmProgress) + '%';
-                
-                userData.farmed = Math.min(
-                    Math.floor((gecenSaniye / 3600) * saatlikKazanc),
-                    FARM_AYARLARI.maxFarm
-                );
-                
-                const kalanSaniye = Math.max(0, FARM_AYARLARI.claimSuresi - gecenSaniye);
-                const hours = Math.floor(kalanSaniye / 3600);
-                const minutes = Math.floor((kalanSaniye % 3600) / 60);
-                const seconds = kalanSaniye % 60;
-                
+                const saatlik = seviye.saatlik || 9;
+                const progress = (gecenSaniye / FARM_AYARLARI.claimSuresi) * 100;
+                document.getElementById('farmProgress').style.width = Math.min(100, progress) + '%';
+                userData.farmed = Math.min(Math.floor((gecenSaniye / 3600) * saatlik), FARM_AYARLARI.maxFarm);
+                const kalan = Math.max(0, FARM_AYARLARI.claimSuresi - gecenSaniye);
+                const h = Math.floor(kalan / 3600);
+                const m = Math.floor((kalan % 3600) / 60);
+                const s = kalan % 60;
                 document.getElementById('claimTimer').textContent = 
-                    `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-                
+                    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
                 document.getElementById('farmedAmount').textContent = userData.farmed;
-                
-                document.getElementById('claimButton').disabled = kalanSaniye > 0;
-                
+                document.getElementById('claimButton').disabled = kalan > 0;
             }, 1000);
         }
         
-        // ---------- CLAIM ----------
         function claimFarm() {
             if (userData.farmed > 0) {
                 userData.napx += userData.farmed;
                 userData.lastClaim = Date.now();
                 userData.farmed = 0;
-                
-                updateScreen();
-                kaydet();
-                gorevleriKontrolEt('claim');
-                
-                if (tg?.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
+                updateScreen(); kaydet(); gorevleriKontrolEt('claim');
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             }
         }
         
-        // ---------- BOOST ----------
-        function boostFarm() {
-            alert('Boost yakında!');
-        }
-        
-        // ---------- ENERJİ YENİLENME ----------
         function yenilenEnerji() {
             if (userData.energy < ENERJI_AYARLARI.max) {
-                userData.energy = Math.min(
-                    ENERJI_AYARLARI.max, 
-                    userData.energy + ENERJI_AYARLARI.yenilenmeMiktar
-                );
-                updateScreen();
-                kaydet();
+                userData.energy = Math.min(ENERJI_AYARLARI.max, userData.energy + 1);
+                updateScreen(); kaydet();
             }
         }
         
-        // ---------- SEVİYE BUL ----------
-        function seviyeBul(tapSayisi) {
-            for (let i = SEVIYELER.length - 1; i >= 0; i--) {
-                if (tapSayisi >= SEVIYELER[i].minTap) {
-                    return SEVIYELER[i];
-                }
-            }
+        function seviyeBul(tap) {
+            for (let i = SEVIYELER.length - 1; i >= 0; i--) 
+                if (tap >= SEVIYELER[i].minTap) return SEVIYELER[i];
             return SEVIYELER[0];
         }
         
-        // ---------- EKRAN GÜNCELLE ----------
         function updateScreen() {
             document.getElementById('napxBalance').textContent = userData.napx;
             document.getElementById('totalTaps').textContent = userData.taps;
-            
             const enerjiYuzde = (userData.energy / ENERJI_AYARLARI.max) * 100;
             document.getElementById('energyBar').style.width = enerjiYuzde + '%';
             document.getElementById('energyText').textContent = `${userData.energy}/${ENERJI_AYARLARI.max}`;
-            
             const seviye = seviyeBul(userData.taps);
             document.getElementById('userLevelBadge').textContent = seviye.ad;
             document.getElementById('multiplier').textContent = seviye.carpan + 'x';
             document.getElementById('hourlyRate').textContent = seviye.saatlik || 9;
             document.getElementById('tapKazanc').textContent = `+${Math.floor(1 * seviye.carpan)} NAPX`;
-            
-            const siradakiSeviye = SEVIYELER.find(s => s.minTap > userData.taps) || SEVIYELER[SEVIYELER.length-1];
-            document.getElementById('nextLevel').textContent = siradakiSeviye?.ad || 'Max';
-            
-            const mevcutSeviyeIndex = SEVIYELER.findIndex(s => s.ad === seviye.ad);
-            const sonrakiSeviye = SEVIYELER[mevcutSeviyeIndex + 1];
-            if (sonrakiSeviye) {
-                const progress = ((userData.taps - seviye.minTap) / (sonrakiSeviye.minTap - seviye.minTap)) * 100;
+            const siradaki = SEVIYELER.find(s => s.minTap > userData.taps) || SEVIYELER[SEVIYELER.length-1];
+            document.getElementById('nextLevel').textContent = siradaki?.ad || 'Max';
+            const index = SEVIYELER.findIndex(s => s.ad === seviye.ad);
+            const sonraki = SEVIYELER[index + 1];
+            if (sonraki) {
+                const progress = ((userData.taps - seviye.minTap) / (sonraki.minTap - seviye.minTap)) * 100;
                 document.getElementById('levelProgressBar').style.width = Math.min(100, progress) + '%';
-                document.getElementById('levelProgressText').textContent = `${userData.taps - seviye.minTap}/${sonrakiSeviye.minTap - seviye.minTap}`;
+                document.getElementById('levelProgressText').textContent = 
+                    `${userData.taps - seviye.minTap}/${sonraki.minTap - seviye.minTap}`;
             } else {
                 document.getElementById('levelProgressBar').style.width = '100%';
                 document.getElementById('levelProgressText').textContent = 'Max Seviye';
             }
-            
-            // Referral istatistikleri
             document.getElementById('totalReferrals').textContent = userData.totalReferrals || 0;
-            document.getElementById('referralEarnings').textContent = (userData.totalReferrals * 700) || 0; // 500 + 200
+            document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
         }
         
-        // ---------- SON DAVETLER ----------
-        function updateRecentReferrals() {
-            const container = document.getElementById('recentReferrals');
-            if (userData.referrals.length > 0) {
-                const sonDavetler = userData.referrals.slice(-3).map(id => 
-                    `👤 ID: ${id.substring(0,5)}...`
-                ).join('<br>');
-                container.innerHTML = sonDavetler;
-            } else {
-                container.innerHTML = 'Henüz davet yok';
-            }
-        }
-        
-        // ---------- GÖREVLERİ GÖSTER ----------
         function gorevleriGoster() {
-            const container = document.getElementById('gorevlerListesi');
             let html = '';
-            
-            GOREVLER.forEach(gorev => {
-                if (!gorev.aktif) return;
-                
-                const tamamlandi = userData.tamamlananGorevler.includes(gorev.id);
-                const disabled = tamamlandi ? 'opacity-50 pointer-events-none' : '';
-                
+            GOREVLER.forEach(g => {
+                if (!g.aktif) return;
+                const tamam = userData.tamamlananGorevler.includes(g.id);
                 html += `
-                    <div class="bg-white/5 rounded-xl p-3 border border-white/10 ${disabled}">
+                    <div class="bg-white/5 rounded-xl p-3 border border-white/10 ${tamam ? 'opacity-50' : ''}">
                         <div class="flex justify-between items-center">
-                            <div>
-                                <div class="font-medium text-sm">${gorev.ad}</div>
-                                <div class="text-xs text-gray-400">+${gorev.odul} NAPX</div>
-                            </div>
-                            <button onclick="gorevYap(${gorev.id})" class="px-3 py-1.5 bg-purple-500/20 rounded-lg text-xs text-purple-300">
-                                ${tamamlandi ? '✓ Tamamlandı' : 'Git'}
+                            <div><div class="font-medium text-sm">${g.ad}</div><div class="text-xs text-gray-400">+${g.odul} NAPX</div></div>
+                            <button onclick="gorevYap(${g.id})" class="px-3 py-1.5 bg-purple-500/20 rounded-lg text-xs text-purple-300">
+                                ${tamam ? '✓ Tamamlandı' : 'Git'}
                             </button>
                         </div>
                     </div>
                 `;
             });
-            
-            container.innerHTML = html;
+            document.getElementById('gorevlerListesi').innerHTML = html;
         }
         
-        // ---------- GÖREV YAP ----------
-        window.gorevYap = function(gorevId) {
-            const gorev = GOREVLER.find(g => g.id === gorevId);
-            if (!gorev || userData.tamamlananGorevler.includes(gorev.id)) return;
-            
+        window.gorevYap = function(id) {
+            const gorev = GOREVLER.find(g => g.id === id);
+            if (!gorev || userData.tamamlananGorevler.includes(id)) return;
             if (gorev.tip === 'link') {
                 window.open(gorev.link, '_blank');
                 userData.napx += gorev.odul;
-                userData.tamamlananGorevler.push(gorev.id);
-                updateScreen();
-                kaydet();
-                gorevleriGoster();
-                
-                if (tg?.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
+                userData.tamamlananGorevler.push(id);
+                updateScreen(); kaydet(); gorevleriGoster();
+                if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             }
         };
         
-        // ---------- GÖREV KONTROL ----------
         function gorevleriKontrolEt(tip) {
-            GOREVLER.forEach(gorev => {
-                if (gorev.tip === tip && !userData.tamamlananGorevler.includes(gorev.id)) {
-                    if (tip === 'tap' && userData.taps >= gorev.hedef) {
-                        userData.napx += gorev.odul;
-                        userData.tamamlananGorevler.push(gorev.id);
-                        updateScreen();
-                        kaydet();
-                        
-                        if (tg?.HapticFeedback) {
-                            tg.HapticFeedback.notificationOccurred('success');
-                        }
+            GOREVLER.forEach(g => {
+                if (g.tip === tip && !userData.tamamlananGorevler.includes(g.id)) {
+                    if (tip === 'tap' && userData.taps >= g.hedef) {
+                        userData.napx += g.odul;
+                        userData.tamamlananGorevler.push(g.id);
+                        updateScreen(); kaydet(); gorevleriGoster();
+                        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     }
                     if (tip === 'claim' && !userData.tamamlananGorevler.includes(4)) {
-                        userData.napx += gorev.odul;
+                        userData.napx += g.odul;
                         userData.tamamlananGorevler.push(4);
-                        updateScreen();
-                        kaydet();
+                        updateScreen(); kaydet(); gorevleriGoster();
                     }
                 }
             });
-            gorevleriGoster();
         }
         
-        // ---------- KAYDET ----------
         function kaydet() {
             if (tg) {
-                tg.CloudStorage.setItem('novapex_full_v3', JSON.stringify({
-                    napx: userData.napx,
-                    taps: userData.taps,
-                    energy: userData.energy,
-                    lastClaim: userData.lastClaim,
-                    tamamlananGorevler: userData.tamamlananGorevler,
-                    referrals: userData.referrals,
-                    totalReferrals: userData.totalReferrals,
-                    firstTapDone: userData.firstTapDone
+                tg.CloudStorage.setItem('novapex_supabase', JSON.stringify({
+                    napx: userData.napx, taps: userData.taps, energy: userData.energy,
+                    lastClaim: userData.lastClaim, tamamlananGorevler: userData.tamamlananGorevler,
+                    referrals: userData.referrals, totalReferrals: userData.totalReferrals,
+                    referralEarnings: userData.referralEarnings, firstTapDone: userData.firstTapDone
                 }));
             }
         }
