@@ -1,23 +1,78 @@
-// api/referral.js - Davet sistemi backend
-export default function handler(req, res) {
-    // CORS ayarları (Telegram izin versin)
+// api/referral.js - Supabase entegre
+import { createClient } from '@supabase/supabase-js'
+
+// Supabase bağlantısı (KENDİ BİLGİLERİNLE DEĞİŞTİR!)
+const supabase = createClient(
+  'https://senin-proje-url.supabase.co',
+  'senin-anon-key'
+)
+
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     
     if (req.method === 'POST') {
-        // Davet eden kişiye ödül ver
         const { referrerId, newUserId } = req.body;
         
-        // Burada veritabanına kaydedeceğiz
-        // Şimdilik basit cevap verelim
-        
-        res.status(200).json({ 
-            success: true, 
-            message: 'Referral kaydedildi',
-            reward: 500 
-        });
+        try {
+            // 1. Referrer'ın bakiyesini kontrol et
+            const { data: referrer } = await supabase
+                .from('users')
+                .select('napx_balance')
+                .eq('telegram_id', referrerId)
+                .single();
+            
+            if (referrer) {
+                // 2. Bakiyeyi güncelle (+500)
+                await supabase
+                    .from('users')
+                    .update({ napx_balance: referrer.napx_balance + 500 })
+                    .eq('telegram_id', referrerId);
+                
+                // 3. İşlem kaydı ekle
+                await supabase
+                    .from('transactions')
+                    .insert([{
+                        telegram_id: referrerId,
+                        amount: 500,
+                        type: 'referral'
+                    }]);
+            }
+            
+            // 4. Referral kaydı oluştur
+            await supabase
+                .from('referrals')
+                .insert([{
+                    referrer_id: referrerId,
+                    referred_id: newUserId,
+                    reward_given: true
+                }]);
+            
+            // 5. Yeni kullanıcıyı kaydet (yoksa)
+            const { data: newUser } = await supabase
+                .from('users')
+                .select('id')
+                .eq('telegram_id', newUserId)
+                .single();
+            
+            if (!newUser) {
+                await supabase
+                    .from('users')
+                    .insert([{
+                        telegram_id: newUserId,
+                        napx_balance: 0
+                    }]);
+            }
+            
+            res.status(200).json({ 
+                success: true, 
+                reward: 500 
+            });
+            
+        } catch (error) {
+            console.error('Referral error:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
     } else {
-        // Sadece POST kabul et
         res.status(405).json({ error: 'Method not allowed' });
     }
 }
