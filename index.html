@@ -3,41 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NovApex • NAPX</title>
+    <title>NovApex • NAPX • Full Versiyon</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { font-family: system-ui, -apple-system, sans-serif; }
-        body { background: #0A0A0F; color: white; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body { 
+            background: #0A0A0F; 
+            color: white; 
+            margin: 0; 
+            padding: 0;
+            background: radial-gradient(circle at 30% 10%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                        linear-gradient(145deg, #0B1120 0%, #030712 100%);
+        }
+        
         .token-glow { 
             background: linear-gradient(145deg, #8B5CF6, #3B82F6);
             transition: all 0.1s ease;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
         }
         .token-glow:active { transform: scale(0.95); }
+        
         .energy-bar { transition: width 0.3s ease; }
+        .farm-progress { transition: width 0.3s ease; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
+        }
     </style>
 </head>
-<body class="p-4 pb-24">
+<body class="p-4 pb-28">
     <div class="max-w-md mx-auto">
         
-        <!-- ========== KULLANICI KARTI ========== -->
-        <div class="bg-white/5 rounded-2xl p-4 mb-4 border border-white/10">
-            <div class="flex justify-between items-center">
-                <div>
-                    <div class="text-sm text-gray-400" id="userName">NovApex Kaşifi</div>
-                    <div class="text-3xl font-black text-white" id="napxBalance">0</div>
+        <!-- ========== ÜST KART (Kullanıcı + Bakiye) ========== -->
+        <div class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-white/10">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xl font-bold">
+                    <span id="userInitial">N</span>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400" id="userName">NovApex Kaşifi</span>
+                        <span class="text-xs px-2 py-0.5 bg-purple-500/20 rounded-full text-purple-300 border border-purple-500/30" id="userLevelBadge">Starter</span>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-3xl font-black text-white" id="napxBalance">0</span>
+                        <span class="text-sm text-purple-400">NAPX</span>
+                    </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-xs text-gray-400">Seviye</div>
-                    <div class="text-xl font-bold text-purple-400" id="userLevel">Starter</div>
+                    <div class="text-xs text-gray-400">Sıradaki</div>
+                    <div class="text-sm font-bold text-purple-400" id="nextLevel">Bronze</div>
+                </div>
+            </div>
+            
+            <!-- Seviye Progress Bar -->
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs">
+                    <span class="text-gray-400">Seviye İlerlemesi</span>
+                    <span id="levelProgressText">0/100</span>
+                </div>
+                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div id="levelProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500" style="width: 0%"></div>
                 </div>
             </div>
         </div>
         
+        <!-- ========== FARMING KARTI (Orexn'deki gibi) ========== -->
+        <div class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-purple-500/20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-purple-600/20 rounded-full blur-3xl"></div>
+            
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <div class="text-sm text-gray-400 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" class="text-purple-400">
+                            <path d="M128,44a96,96,0,1,0,96,96A96.11,96.11,0,0,0,128,44Zm0,168a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,212ZM164.49,99.51a12,12,0,0,1,0,17l-28,28a12,12,0,0,1-17-17l28-28A12,12,0,0,1,164.49,99.51ZM92,16A12,12,0,0,1,104,4h48a12,12,0,0,1,0,24H104A12,12,0,0,1,92,16Z"></path>
+                        </svg>
+                        <span>Farming Status</span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-bold text-white" id="farmedAmount">0</span>
+                        <span class="text-sm text-gray-400 mb-1">NAPX</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 px-2 py-1 bg-emerald-500/20 rounded-full">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 pulse-animation"></div>
+                    <span class="text-xs text-emerald-400">Active</span>
+                </div>
+            </div>
+            
+            <!-- Farming İlerleme Çubuğu (Orexn'deki gibi) -->
+            <div class="mb-4">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-gray-400">Claim'e kalan</span>
+                    <span class="text-white font-mono" id="claimTimer">01:00:00</span>
+                </div>
+                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+                    <div id="farmProgress" class="farm-progress h-full bg-gradient-to-r from-yellow-400 to-amber-500" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- Claim ve Boost Butonları -->
+            <div class="grid grid-cols-2 gap-2">
+                <button id="claimButton" class="py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                    Claim
+                </button>
+                <button id="boostButton" class="py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white">
+                    🚀 Boost
+                </button>
+            </div>
+        </div>
+        
         <!-- ========== ENERJİ ÇUBUĞU ========== -->
-        <div class="bg-white/5 rounded-xl p-3 mb-4 border border-white/10">
+        <div class="bg-white/5 backdrop-blur-xl rounded-xl p-3 mb-3 border border-white/10">
             <div class="flex justify-between text-xs mb-1">
-                <span>Enerji</span>
+                <span class="text-gray-400">Enerji</span>
                 <span id="energyText">1000/1000</span>
             </div>
             <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
@@ -45,113 +137,130 @@
             </div>
         </div>
         
-        <!-- ========== TAP BUTONU ========== -->
-        <button id="tapButton" class="token-glow w-full py-8 rounded-2xl text-white text-2xl font-bold mb-6 shadow-2xl">
-            TAP • +1 NAPX
+        <!-- ========== TAP BUTONU (BÜYÜK) ========== -->
+        <button id="tapButton" class="token-glow w-full py-8 rounded-2xl text-white text-2xl font-bold mb-4 shadow-2xl">
+            <div class="flex flex-col items-center">
+                <span class="text-3xl">👆 TAP</span>
+                <span class="text-sm opacity-80" id="tapKazanc">+1 NAPX</span>
+            </div>
         </button>
         
-        <!-- ========== GÖREVLER ========== -->
-        <div class="mt-6">
-            <h2 class="text-lg font-bold text-white mb-3">⚡ Görevler</h2>
-            <div id="gorevlerListesi" class="space-y-2">
+        <!-- ========== HIZLI İŞLEMLER (Rewards, Tasks, Spin) ========== -->
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <button class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
+                <span class="text-2xl mb-1">🎁</span>
+                <span class="text-xs">Günlük</span>
+            </button>
+            <button id="tasksButton" class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
+                <span class="text-2xl mb-1">📋</span>
+                <span class="text-xs">Görevler</span>
+            </button>
+            <button class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
+                <span class="text-2xl mb-1">🎰</span>
+                <span class="text-xs">Spin</span>
+            </button>
+        </div>
+        
+        <!-- ========== GÖREVLER (Toggle ile açılıp kapanabilir) ========== -->
+        <div id="tasksSection" class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-white/10 hidden">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold">⚡ Görevler</h2>
+                <button id="closeTasks" class="text-xs text-gray-400">✕ Kapat</button>
+            </div>
+            <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto">
                 <!-- Görevler JavaScript ile doldurulacak -->
             </div>
         </div>
         
         <!-- ========== İSTATİSTİKLER ========== -->
-        <div class="grid grid-cols-2 gap-2 mt-4">
-            <div class="bg-white/5 rounded-xl p-3">
+        <div class="grid grid-cols-3 gap-2">
+            <div class="bg-white/5 backdrop-blur-xl rounded-xl p-2 text-center">
                 <div class="text-xs text-gray-400">Toplam Tap</div>
-                <div class="text-lg font-bold" id="totalTaps">0</div>
+                <div class="text-base font-bold" id="totalTaps">0</div>
             </div>
-            <div class="bg-white/5 rounded-xl p-3">
+            <div class="bg-white/5 backdrop-blur-xl rounded-xl p-2 text-center">
+                <div class="text-xs text-gray-400">Saatlik</div>
+                <div class="text-base font-bold text-purple-400" id="hourlyRate">9</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur-xl rounded-xl p-2 text-center">
                 <div class="text-xs text-gray-400">Çarpan</div>
-                <div class="text-lg font-bold text-purple-400" id="multiplier">1.0x</div>
+                <div class="text-base font-bold text-blue-400" id="multiplier">1.0x</div>
             </div>
         </div>
         
-        <!-- ========== ALT NAVIGASYON ========== -->
-        <div class="fixed bottom-0 left-0 w-full bg-black/90 border-t border-white/10 p-2 pb-safe">
-            <div class="grid grid-cols-4 gap-2 max-w-md mx-auto">
-                <button class="py-2 px-1 text-xs text-purple-400">🏠 Farm</button>
-                <button class="py-2 px-1 text-xs text-gray-500">📊 Earn</button>
-                <button class="py-2 px-1 text-xs text-gray-500">👥 Friends</button>
-                <button class="py-2 px-1 text-xs text-gray-500">⚙️ Stats</button>
+        <!-- ========== ALT NAVIGASYON (Orexn'in aynısı) ========== -->
+        <nav class="fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-xl border-t border-purple-500/20 pb-safe z-50">
+            <div class="grid grid-cols-5 gap-1 max-w-md mx-auto py-1">
+                <button class="flex flex-col items-center p-2 text-purple-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M112,116a12,12,0,1,1-12-12A12,12,0,0,1,112,116Zm44-12a12,12,0,1,0,12,12A12,12,0,0,0,156,104Zm68,16v96a8,8,0,0,1-13.07,6.19l-24.26-19.85L162.4,222.19a8,8,0,0,1-10.13,0L128,202.34l-24.27,19.85a8,8,0,0,1-10.13,0L69.33,202.34,45.07,222.19A8,8,0,0,1,32,216V120a96,96,0,0,1,192,0Z"></path>
+                    </svg>
+                    <span class="text-[10px]">Farm</span>
+                </button>
+                <button class="flex flex-col items-center p-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M198.51,56.09C186.44,35.4,169.92,24,152,24H104C86.08,24,69.56,35.4,57.49,56.09,46.21,75.42,40,101,40,128s6.21,52.58,17.49,71.91C69.56,220.6,86.08,232,104,232h48c17.92,0,34.44-11.4,46.51-32.09C209.79,180.58,216,155,216,128S209.79,75.42,198.51,56.09Z"></path>
+                    </svg>
+                    <span class="text-[10px]">Earn</span>
+                </button>
+                <button class="flex flex-col items-center p-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M112.41,102.53a8,8,0,0,1,5.06-10.12l12-4A8,8,0,0,1,140,96v40a8,8,0,0,1-16,0V107.1l-1.47.49A8,8,0,0,1,112.41,102.53ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16h8V104A16,16,0,0,1,40,88H80V56A16,16,0,0,1,96,40h64a16,16,0,0,1,16,16v72h40a16,16,0,0,1,16,16v56h8A8,8,0,0,1,248,208Z"></path>
+                    </svg>
+                    <span class="text-[10px]">Leaders</span>
+                </button>
+                <button class="flex flex-col items-center p-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92Z"></path>
+                    </svg>
+                    <span class="text-[10px]">Friends</span>
+                </button>
+                <button class="flex flex-col items-center p-2 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 256 256">
+                        <path d="M184,89.57V84c0-25.08-37.83-44-88-44S8,58.92,8,84v40c0,20.89,26.25,37.49,64,42.46V172c0,25.08,37.83,44,88,44s88-18.92,88-44V132C248,111.3,222.58,94.68,184,89.57Z"></path>
+                    </svg>
+                    <span class="text-[10px]">Token</span>
+                </button>
             </div>
-        </div>
+        </nav>
     </div>
 
     <script>
         // =============================================
-        // NOVAPEX - MODÜLER SİSTEM (Değişime Açık)
+        // NOVAPEX - FULL VERSİYON (Orexn Clone +)
         // =============================================
         
-        // ---------- AYARLAR (Burası senin kontrolünde!) ----------
+        // ---------- AYARLAR (Sen değiştir!) ----------
         const ENERJI_AYARLARI = {
-            max: 1000,              // Maksimum enerji
-            tapEnerji: 1,           // Her tap'te kaç enerji gider
-            yenilenmeSaniye: 10,    // Kaç saniyede 1 enerji gelir
-            yenilenmeMiktar: 1       // Kaç enerji gelir
+            max: 1000,
+            tapEnerji: 1,
+            yenilenmeSaniye: 10,
+            yenilenmeMiktar: 1
+        };
+        
+        const FARM_AYARLARI = {
+            saatlikKazanc: 9,              // Saatlik 9 NAPX
+            claimSuresi: 60 * 60,           // 1 saat (saniye cinsinden)
+            maxFarm: 9 * 24                  // Maksimum 24 saatlik birikim
         };
         
         const SEVIYELER = [
-            { ad: "Starter", minTap: 0, carpan: 1.0, renk: "text-gray-400" },
-            { ad: "Bronze", minTap: 100, carpan: 1.2, renk: "text-amber-600" },
-            { ad: "Silver", minTap: 500, carpan: 1.5, renk: "text-gray-300" },
-            { ad: "Gold", minTap: 1000, carpan: 2.0, renk: "text-yellow-400" },
-            { ad: "Platinum", minTap: 5000, carpan: 3.0, renk: "text-blue-400" },
-            { ad: "Diamond", minTap: 10000, carpan: 5.0, renk: "text-purple-400" },
-            { ad: "Legend", minTap: 50000, carpan: 10.0, renk: "text-red-400" }
+            { ad: "Starter", minTap: 0, carpan: 1.0, next: 100, saatlik: 9 },
+            { ad: "Bronze", minTap: 100, carpan: 1.2, next: 500, saatlik: 12 },
+            { ad: "Silver", minTap: 500, carpan: 1.5, next: 1000, saatlik: 15 },
+            { ad: "Gold", minTap: 1000, carpan: 2.0, next: 5000, saatlik: 20 },
+            { ad: "Platinum", minTap: 5000, carpan: 3.0, next: 10000, saatlik: 30 },
+            { ad: "Diamond", minTap: 10000, carpan: 5.0, next: 50000, saatlik: 50 },
+            { ad: "Legend", minTap: 50000, carpan: 10.0, next: null, saatlik: 100 }
         ];
         
-        // ---------- GÖREVLER (İstediğin kadar ekle/çıkar!) ----------
         const GOREVLER = [
-            { 
-                id: 1, 
-                ad: "Telegram Kanalına Katıl", 
-                odul: 50, 
-                tip: "link",
-                link: "https://t.me/novapex",
-                zorluk: "Kolay",
-                aktif: true
-            },
-            { 
-                id: 2, 
-                ad: "100 Tap Yap", 
-                odul: 100, 
-                tip: "tap",
-                hedef: 100,
-                zorluk: "Kolay",
-                aktif: true
-            },
-            { 
-                id: 3, 
-                ad: "500 Tap Yap", 
-                odul: 250, 
-                tip: "tap",
-                hedef: 500,
-                zorluk: "Orta",
-                aktif: true
-            },
-            { 
-                id: 4, 
-                ad: "Arkadaş Davet Et", 
-                odul: 500, 
-                tip: "referral",
-                zorluk: "Zor",
-                aktif: true
-            },
-            { 
-                id: 5, 
-                ad: "Günde 100 Tap", 
-                odul: 200, 
-                tip: "daily",
-                hedef: 100,
-                zorluk: "Orta",
-                aktif: true
-            }
-            // İLERİDE YENİ GÖREV EKLEMEK İÇİN:
-            // { id: 6, ad: "Yeni Görev", odul: 1000, tip: "...", aktif: true },
+            { id: 1, ad: "Telegram Kanalına Katıl", odul: 50, tip: "link", link: "https://t.me/novapex", aktif: true },
+            { id: 2, ad: "100 Tap Yap", odul: 100, tip: "tap", hedef: 100, aktif: true },
+            { id: 3, ad: "500 Tap Yap", odul: 250, tip: "tap", hedef: 500, aktif: true },
+            { id: 4, ad: "İlk Claim'i Yap", odul: 100, tip: "claim", aktif: true },
+            { id: 5, ad: "Arkadaş Davet Et", odul: 500, tip: "referral", aktif: true },
+            { id: 6, ad: "Günde 100 Tap", odul: 200, tip: "daily", hedef: 100, aktif: true }
         ];
         
         // ---------- KULLANICI VERİSİ ----------
@@ -159,10 +268,14 @@
             napx: 0,
             taps: 0,
             energy: ENERJI_AYARLARI.max,
+            farmed: 0,
+            lastClaim: null,
             tamamlananGorevler: []
         };
         
         const tg = Telegram?.WebApp;
+        let claimInterval;
+        let farmProgress = 0;
         
         // ---------- SAYFA YÜKLENİNCE ----------
         window.onload = function() {
@@ -170,36 +283,53 @@
                 tg.expand();
                 tg.ready();
                 
-                // Telegram kullanıcı adını al
+                // Telegram kullanıcı adı
                 const user = tg.initDataUnsafe?.user;
                 if (user?.first_name) {
                     document.getElementById('userName').textContent = user.first_name;
+                    document.getElementById('userInitial').textContent = user.first_name.charAt(0).toUpperCase();
                 }
                 
-                // CloudStorage'dan verileri yükle (KALICI!)
-                tg.CloudStorage.getItem('novapex_data', function(err, value) {
+                // CloudStorage'dan verileri yükle
+                tg.CloudStorage.getItem('novapex_full', function(err, value) {
                     if (value) {
                         try {
                             const saved = JSON.parse(value);
-                            userData.napx = saved.napx || 0;
-                            userData.taps = saved.taps || 0;
-                            userData.energy = saved.energy ?? ENERJI_AYARLARI.max;
-                            userData.tamamlananGorevler = saved.tamamlananGorevler || [];
+                            userData = {...userData, ...saved};
+                            if (!userData.lastClaim) userData.lastClaim = Date.now();
+                            if (userData.energy === undefined) userData.energy = ENERJI_AYARLARI.max;
                         } catch(e) {}
+                    } else {
+                        userData.lastClaim = Date.now();
                     }
                     updateScreen();
                     gorevleriGoster();
+                    startFarmTimer();
                 });
             }
             
-            // Enerji yenilenme zamanlayıcısı
+            // Enerji yenilenme
             setInterval(yenilenEnerji, ENERJI_AYARLARI.yenilenmeSaniye * 1000);
+            
+            // Claim butonu
+            document.getElementById('claimButton').onclick = claimFarm;
+            document.getElementById('boostButton').onclick = boostFarm;
+            
+            // Tap butonu
+            document.getElementById('tapButton').onclick = tap;
+            
+            // Tasks toggle
+            document.getElementById('tasksButton').onclick = () => {
+                document.getElementById('tasksSection').classList.remove('hidden');
+            };
+            document.getElementById('closeTasks').onclick = () => {
+                document.getElementById('tasksSection').classList.add('hidden');
+            };
         };
         
-        // ---------- TAP BUTONU ----------
-        document.getElementById('tapButton').onclick = function() {
+        // ---------- TAP FONKSİYONU ----------
+        function tap() {
             if (userData.energy >= ENERJI_AYARLARI.tapEnerji) {
-                // Kazancı hesapla (seviye çarpanı ile)
                 const seviye = seviyeBul(userData.taps);
                 const kazanilan = Math.floor(1 * seviye.carpan);
                 
@@ -211,12 +341,79 @@
                 kaydet();
                 gorevleriKontrolEt('tap');
                 
-                // Titreşim
                 if (tg?.HapticFeedback) {
                     tg.HapticFeedback.impactOccurred('light');
                 }
             }
-        };
+        }
+        
+        // ---------- FARMING ----------
+        function startFarmTimer() {
+            if (claimInterval) clearInterval(claimInterval);
+            
+            claimInterval = setInterval(() => {
+                if (!userData.lastClaim) userData.lastClaim = Date.now();
+                
+                const now = Date.now();
+                const gecenSaniye = Math.floor((now - userData.lastClaim) / 1000);
+                const seviye = seviyeBul(userData.taps);
+                const saatlikKazanc = seviye.saatlik || 9;
+                
+                // Farming hesaplama
+                farmProgress = (gecenSaniye / FARM_AYARLARI.claimSuresi) * 100;
+                if (farmProgress > 100) farmProgress = 100;
+                
+                // Biriken miktar
+                userData.farmed = Math.min(
+                    Math.floor((gecenSaniye / 3600) * saatlikKazanc),
+                    FARM_AYARLARI.maxFarm
+                );
+                
+                // Timer format
+                const kalanSaniye = Math.max(0, FARM_AYARLARI.claimSuresi - gecenSaniye);
+                const hours = Math.floor(kalanSaniye / 3600);
+                const minutes = Math.floor((kalanSaniye % 3600) / 60);
+                const seconds = kalanSaniye % 60;
+                
+                document.getElementById('claimTimer').textContent = 
+                    `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+                
+                document.getElementById('farmProgress').style.width = farmProgress + '%';
+                document.getElementById('farmedAmount').textContent = userData.farmed;
+                
+                // Claim butonu aktif/pasif
+                const claimBtn = document.getElementById('claimButton');
+                if (kalanSaniye <= 0) {
+                    claimBtn.disabled = false;
+                } else {
+                    claimBtn.disabled = true;
+                }
+                
+            }, 1000);
+        }
+        
+        // ---------- CLAIM FONKSİYONU ----------
+        function claimFarm() {
+            if (userData.farmed > 0) {
+                userData.napx += userData.farmed;
+                userData.lastClaim = Date.now();
+                userData.farmed = 0;
+                
+                updateScreen();
+                kaydet();
+                gorevleriKontrolEt('claim');
+                
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        }
+        
+        // ---------- BOOST ----------
+        function boostFarm() {
+            // Boost maliyeti vs eklenebilir
+            alert('Boost yakında!');
+        }
         
         // ---------- ENERJİ YENİLENME ----------
         function yenilenEnerji() {
@@ -240,7 +437,7 @@
             return SEVIYELER[0];
         }
         
-        // ---------- EKRANI GÜNCELLE ----------
+        // ---------- EKRAN GÜNCELLE ----------
         function updateScreen() {
             document.getElementById('napxBalance').textContent = userData.napx;
             document.getElementById('totalTaps').textContent = userData.taps;
@@ -252,8 +449,26 @@
             
             // Seviye
             const seviye = seviyeBul(userData.taps);
-            document.getElementById('userLevel').textContent = seviye.ad;
+            document.getElementById('userLevelBadge').textContent = seviye.ad;
             document.getElementById('multiplier').textContent = seviye.carpan + 'x';
+            document.getElementById('hourlyRate').textContent = seviye.saatlik || 9;
+            document.getElementById('tapKazanc').textContent = `+${Math.floor(1 * seviye.carpan)} NAPX`;
+            
+            // Sonraki seviye
+            const siradakiSeviye = SEVIYELER.find(s => s.minTap > userData.taps) || SEVIYELER[SEVIYELER.length-1];
+            document.getElementById('nextLevel').textContent = siradakiSeviye?.ad || 'Max';
+            
+            // Seviye progress
+            const mevcutSeviyeIndex = SEVIYELER.findIndex(s => s.ad === seviye.ad);
+            const sonrakiSeviye = SEVIYELER[mevcutSeviyeIndex + 1];
+            if (sonrakiSeviye) {
+                const progress = ((userData.taps - seviye.minTap) / (sonrakiSeviye.minTap - seviye.minTap)) * 100;
+                document.getElementById('levelProgressBar').style.width = Math.min(100, progress) + '%';
+                document.getElementById('levelProgressText').textContent = `${userData.taps - seviye.minTap}/${sonrakiSeviye.minTap - seviye.minTap}`;
+            } else {
+                document.getElementById('levelProgressBar').style.width = '100%';
+                document.getElementById('levelProgressText').textContent = 'Max Seviye';
+            }
         }
         
         // ---------- GÖREVLERİ GÖSTER ----------
@@ -271,11 +486,11 @@
                     <div class="bg-white/5 rounded-xl p-3 border border-white/10 ${disabled}">
                         <div class="flex justify-between items-center">
                             <div>
-                                <div class="font-medium">${gorev.ad}</div>
-                                <div class="text-xs text-gray-400">+${gorev.odul} NAPX • ${gorev.zorluk}</div>
+                                <div class="font-medium text-sm">${gorev.ad}</div>
+                                <div class="text-xs text-gray-400">+${gorev.odul} NAPX</div>
                             </div>
-                            <button onclick="gorevYap(${gorev.id})" class="px-3 py-1 bg-purple-500/20 rounded-lg text-xs text-purple-300">
-                                ${tamamlandi ? '✓ Tamamlandı' : 'Yap'}
+                            <button onclick="gorevYap(${gorev.id})" class="px-3 py-1.5 bg-purple-500/20 rounded-lg text-xs text-purple-300">
+                                ${tamamlandi ? '✓ Tamamlandı' : 'Git'}
                             </button>
                         </div>
                     </div>
@@ -291,10 +506,7 @@
             if (!gorev || userData.tamamlananGorevler.includes(gorev.id)) return;
             
             if (gorev.tip === 'link') {
-                // Link görevi
                 window.open(gorev.link, '_blank');
-                
-                // Ödülü hemen ver
                 userData.napx += gorev.odul;
                 userData.tamamlananGorevler.push(gorev.id);
                 updateScreen();
@@ -305,15 +517,13 @@
                     tg.HapticFeedback.notificationOccurred('success');
                 }
             }
-            // Diğer görev tipleri için kontroller buraya eklenecek
         };
         
-        // ---------- GÖREV KONTROL (Tap bazlı) ----------
+        // ---------- GÖREV KONTROL ----------
         function gorevleriKontrolEt(tip) {
             GOREVLER.forEach(gorev => {
                 if (gorev.tip === tip && !userData.tamamlananGorevler.includes(gorev.id)) {
                     if (tip === 'tap' && userData.taps >= gorev.hedef) {
-                        // Tap görevi tamamlandı
                         userData.napx += gorev.odul;
                         userData.tamamlananGorevler.push(gorev.id);
                         updateScreen();
@@ -323,18 +533,25 @@
                             tg.HapticFeedback.notificationOccurred('success');
                         }
                     }
+                    if (tip === 'claim' && !userData.tamamlananGorevler.includes(4)) {
+                        userData.napx += gorev.odul;
+                        userData.tamamlananGorevler.push(4);
+                        updateScreen();
+                        kaydet();
+                    }
                 }
             });
             gorevleriGoster();
         }
         
-        // ---------- CLOUDSTORAGE'A KAYDET (KALICI!) ----------
+        // ---------- KAYDET ----------
         function kaydet() {
             if (tg) {
-                tg.CloudStorage.setItem('novapex_data', JSON.stringify({
+                tg.CloudStorage.setItem('novapex_full', JSON.stringify({
                     napx: userData.napx,
                     taps: userData.taps,
                     energy: userData.energy,
+                    lastClaim: userData.lastClaim,
                     tamamlananGorevler: userData.tamamlananGorevler
                 }));
             }
