@@ -3,222 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NovApex • NAPX • Supabase</title>
+    <title>NovApex • NAPX</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        * { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        
+        * { font-family: 'Orbitron', sans-serif; }
+        
         body { 
-            background: #0A0A0F; 
-            color: white; 
             margin: 0; 
             padding: 0;
-            background: radial-gradient(circle at 30% 10%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 90%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                        linear-gradient(145deg, #0B1120 0%, #030712 100%);
+            min-height: 100vh;
+            background: #030014;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
         }
-        .token-glow { 
-            background: linear-gradient(145deg, #8B5CF6, #3B82F6);
-            transition: all 0.1s ease;
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        
+        /* Nova (Yıldız Patlaması) Arkaplan */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                        linear-gradient(145deg, #020617 0%, #000000 100%);
+            z-index: -2;
         }
-        .token-glow:active { transform: scale(0.95); }
-        .energy-bar { transition: width 0.3s ease; }
-        .farm-progress { transition: width 0.3s ease; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .pulse-animation { animation: pulse 2s infinite; }
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+        
+        /* Apex (Zirve) Işıltıları */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="white" opacity="0.3"/><circle cx="20" cy="30" r="0.5" fill="white" opacity="0.2"/><circle cx="80" cy="70" r="0.5" fill="white" opacity="0.2"/><circle cx="90" cy="20" r="0.3" fill="white" opacity="0.1"/></svg>');
+            background-size: 200px 200px;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+            animation: yildizKaymasi 60s linear infinite;
+        }
+        
+        @keyframes yildizKaymasi {
+            from { transform: translateY(0) translateX(0); }
+            to { transform: translateY(-100px) translateX(100px); }
+        }
+        
+        /* Ana container - Nova ve Apex birleşimi */
+        .nova-apex-container {
+            position: relative;
+            isolation: isolate;
+        }
+        
+        /* Yuvarlak Tap Butonu - Nova Patlaması Efekti */
+        .nova-tap-button {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #8B5CF6, #3B82F6, #8B5CF6);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8),
+                        0 0 100px rgba(59, 130, 246, 0.4),
+                        inset 0 0 50px rgba(255, 255, 255, 0.5);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            cursor: pointer;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: novaPulse 3s infinite;
+        }
+        
+        .nova-tap-button:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 80px rgba(139, 92, 246, 1),
+                        0 0 150px rgba(59, 130, 246, 0.8);
+        }
+        
+        @keyframes novaPulse {
+            0%, 100% { box-shadow: 0 0 50px rgba(139, 92, 246, 0.8), 0 0 100px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 80px rgba(139, 92, 246, 1), 0 0 150px rgba(59, 130, 246, 0.8); }
+        }
+        
+        /* Apex Zirve Işığı */
+        .apex-glow {
+            position: relative;
+        }
+        
+        .apex-glow::after {
+            content: '▲';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            color: rgba(255, 215, 0, 0.6);
+            text-shadow: 0 0 20px gold;
+            animation: apexYuksel 2s infinite;
+        }
+        
+        @keyframes apexYuksel {
+            0%, 100% { top: -20px; opacity: 0.6; }
+            50% { top: -30px; opacity: 1; }
+        }
+        
+        /* Yörüngedeki küçük yıldızlar */
+        .orbit-star {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            filter: blur(1px);
+            opacity: 0.6;
+        }
+        
+        .orbit-star-1 { top: 10%; left: 10%; animation: orbitFloat 8s infinite; }
+        .orbit-star-2 { top: 20%; right: 15%; animation: orbitFloat 12s infinite reverse; }
+        .orbit-star-3 { bottom: 15%; left: 20%; animation: orbitFloat 10s infinite; }
+        .orbit-star-4 { bottom: 25%; right: 25%; animation: orbitFloat 14s infinite reverse; }
+        
+        @keyframes orbitFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+            25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+            50% { transform: translateY(0) translateX(20px); opacity: 0.6; }
+            75% { transform: translateY(20px) translateX(10px); opacity: 0.8; }
+        }
+        
+        /* Kartlar için yarı saydam cam efekti */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .energy-bar {
+            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #22c55e, #10b981);
+        }
+        
+        .farm-progress {
+            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+        }
+        
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
+        }
     </style>
 </head>
-<body class="p-4 pb-28">
-    <div class="max-w-md mx-auto">
-        <!-- ========== ÜST KART ========== -->
-        <div class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-white/10">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xl font-bold">
-                    <span id="userInitial">N</span>
-                </div>
-                <div class="flex-1">
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-400" id="userName">NovApex Kaşifi</span>
-                        <span class="text-xs px-2 py-0.5 bg-purple-500/20 rounded-full text-purple-300 border border-purple-500/30" id="userLevelBadge">Starter</span>
+<body>
+    <!-- Yörüngedeki yıldızlar (Nova efekti) -->
+    <div class="orbit-star orbit-star-1"></div>
+    <div class="orbit-star orbit-star-2"></div>
+    <div class="orbit-star orbit-star-3"></div>
+    <div class="orbit-star orbit-star-4"></div>
+    
+    <div class="nova-apex-container max-w-md mx-auto p-4 pb-8">
+        
+        <!-- ========== ÜST KART (Kullanıcı ve Bakiye) ========== -->
+        <div class="glass-card p-5 mb-4 relative overflow-hidden">
+            <!-- Nova ışıltısı -->
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/30 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-600/30 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-2xl font-bold shadow-lg border-2 border-white/30">
+                        <span id="userInitial">N</span>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-3xl font-black text-white" id="napxBalance">0</span>
-                        <span class="text-sm text-purple-400">NAPX</span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-300 text-sm" id="userName">Nova Kaşifi</span>
+                            <span class="text-xs px-2 py-0.5 bg-purple-500/30 rounded-full text-purple-200 border border-purple-400/30" id="userLevelBadge">Starter</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span class="text-4xl font-black text-white" id="napxBalance">0</span>
+                            <span class="text-purple-300 font-bold">NAPX</span>
+                        </div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-xs text-gray-400">Sıradaki</div>
-                    <div class="text-sm font-bold text-purple-400" id="nextLevel">Bronze</div>
-                </div>
-            </div>
-            <!-- Seviye Progress Bar -->
-            <div class="space-y-1">
-                <div class="flex justify-between text-xs">
-                    <span class="text-gray-400">Seviye İlerlemesi</span>
-                    <span id="levelProgressText">0/100</span>
-                </div>
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div id="levelProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500" style="width: 0%"></div>
+                
+                <!-- Seviye İlerleme Çubuğu -->
+                <div class="mt-3 space-y-1">
+                    <div class="flex justify-between text-xs text-gray-400">
+                        <span>Seviye İlerlemesi</span>
+                        <span id="levelProgressText">0/100</span>
+                    </div>
+                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div id="levelProgressBar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-purple-300" id="userLevelDisplay">Starter</span>
+                        <span class="text-blue-300" id="nextLevelDisplay">Bronze</span>
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- ========== FARMING KARTI ========== -->
-        <div class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-purple-500/20 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-purple-600/20 rounded-full blur-3xl"></div>
+        <div class="glass-card p-5 mb-4 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl"></div>
+            
             <div class="flex justify-between items-start mb-3">
                 <div>
                     <div class="text-sm text-gray-400 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" class="text-purple-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256" class="text-amber-400">
                             <path d="M128,44a96,96,0,1,0,96,96A96.11,96.11,0,0,0,128,44Zm0,168a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,212ZM164.49,99.51a12,12,0,0,1,0,17l-28,28a12,12,0,0,1-17-17l28-28A12,12,0,0,1,164.49,99.51ZM92,16A12,12,0,0,1,104,4h48a12,12,0,0,1,0,24H104A12,12,0,0,1,92,16Z"></path>
                         </svg>
                         <span>Farming Status</span>
                     </div>
                     <div class="flex items-end gap-2">
                         <span class="text-3xl font-bold text-white" id="farmedAmount">0</span>
-                        <span class="text-sm text-gray-400 mb-1">NAPX</span>
+                        <span class="text-gray-400 text-sm mb-1">NAPX</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 px-2 py-1 bg-emerald-500/20 rounded-full">
-                    <div class="w-2 h-2 rounded-full bg-emerald-400 pulse-animation"></div>
+                <div class="flex items-center gap-1 px-3 py-1 bg-emerald-500/20 rounded-full border border-emerald-500/30">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
                     <span class="text-xs text-emerald-400">Active</span>
                 </div>
             </div>
-            <!-- Farming İlerleme Çubuğu -->
+            
+            <!-- Farming İlerleme -->
             <div class="mb-4">
-                <div class="flex justify-between text-xs mb-1">
-                    <span class="text-gray-400">Claim'e kalan</span>
+                <div class="flex justify-between text-xs text-gray-400 mb-1">
+                    <span>Claim'e kalan</span>
                     <span class="text-white font-mono" id="claimTimer">01:00:00</span>
                 </div>
                 <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                    <div id="farmProgress" class="farm-progress h-full bg-gradient-to-r from-yellow-400 to-amber-500" style="width: 0%"></div>
+                    <div id="farmProgress" class="farm-progress h-full" style="width: 0%"></div>
                 </div>
             </div>
+            
             <!-- Claim ve Boost Butonları -->
-            <div class="grid grid-cols-2 gap-2">
-                <button id="claimButton" class="py-3 rounded-xl font-medium bg-gradient-to-r from-purple-600 to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed">
+            <div class="grid grid-cols-2 gap-3">
+                <button id="claimButton" class="py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-purple-500/30 transition-all">
                     Claim
                 </button>
-                <button id="boostButton" class="py-3 rounded-xl font-medium bg-white/10 border border-white/20 text-white">
+                <button id="boostButton" class="py-3 rounded-xl font-bold bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all">
                     🚀 Boost
                 </button>
             </div>
         </div>
         
         <!-- ========== ENERJİ ÇUBUĞU ========== -->
-        <div class="bg-white/5 backdrop-blur-xl rounded-xl p-3 mb-3 border border-white/10">
-            <div class="flex justify-between text-xs mb-1">
+        <div class="glass-card p-4 mb-6">
+            <div class="flex justify-between text-sm mb-2">
                 <span class="text-gray-400">Enerji</span>
-                <span id="energyText">1000/1000</span>
+                <span class="text-white font-mono" id="energyText">1000/1000</span>
             </div>
-            <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                <div id="energyBar" class="energy-bar h-full bg-gradient-to-r from-green-400 to-emerald-400" style="width: 100%"></div>
+            <div class="w-full h-4 bg-white/10 rounded-full overflow-hidden">
+                <div id="energyBar" class="energy-bar h-full" style="width: 100%"></div>
             </div>
         </div>
         
-        <!-- ========== TAP BUTONU ========== -->
-        <button id="tapButton" class="token-glow w-full py-8 rounded-2xl text-white text-2xl font-bold mb-4 shadow-2xl">
-            <div class="flex flex-col items-center">
-                <span class="text-3xl">👆 TAP</span>
-                <span class="text-sm opacity-80" id="tapKazanc">+1 NAPX</span>
-            </div>
-        </button>
-        
-        <!-- ========== HIZLI İŞLEMLER ========== -->
-        <div class="grid grid-cols-4 gap-2 mb-4">
-            <button class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
-                <span class="text-2xl mb-1">🎁</span>
-                <span class="text-xs">Günlük</span>
-            </button>
-            <button id="tasksButton" class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
-                <span class="text-2xl mb-1">📋</span>
-                <span class="text-xs">Görevler</span>
-            </button>
-            <button id="referralButton" class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
-                <span class="text-2xl mb-1">👥</span>
-                <span class="text-xs">Davet</span>
-            </button>
-            <button class="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10 flex flex-col items-center">
-                <span class="text-2xl mb-1">🎰</span>
-                <span class="text-xs">Spin</span>
+        <!-- ========== TAP BUTONU (YUVARLAK) ========== -->
+        <div class="flex justify-center items-center my-8 relative apex-glow">
+            <button id="tapButton" class="nova-tap-button">
+                <span class="text-7xl mb-2 filter drop-shadow-2xl">👆</span>
+                <span class="text-3xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200">TAP</span>
+                <span class="text-sm mt-2 text-purple-200" id="tapKazanc">+1 NAPX</span>
+                
+                <!-- Küçük yıldızlar (Nova patlaması efekti) -->
+                <span class="absolute -top-5 -right-5 text-yellow-300 text-2xl animate-ping">✨</span>
+                <span class="absolute -bottom-5 -left-5 text-purple-300 text-2xl animate-ping delay-100">⭐</span>
+                <span class="absolute top-1/2 -right-8 text-blue-300 animate-spin-slow">●</span>
             </button>
         </div>
         
         <!-- ========== GÖREVLER ========== -->
-        <div id="tasksSection" class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-white/10 hidden">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold">⚡ Görevler</h2>
-                <button id="closeTasks" class="text-xs text-gray-400">✕ Kapat</button>
+        <div class="glass-card p-5 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
+                <span class="text-2xl">⚡</span> 
+                <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">NOVA GÖREVLER</span>
+            </h2>
+            <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                <!-- Görevler JavaScript ile doldurulacak -->
             </div>
-            <div id="gorevlerListesi" class="space-y-2 max-h-80 overflow-y-auto"></div>
         </div>
         
         <!-- ========== DAVET BÖLÜMÜ ========== -->
-        <div id="referralSection" class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 mb-3 border border-white/10 hidden">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold">👥 Arkadaşlarını Davet Et</h2>
-                <button id="closeReferral" class="text-xs text-gray-400">✕ Kapat</button>
-            </div>
+        <div class="glass-card p-5 mb-4">
+            <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
+                <span class="text-2xl">👥</span>
+                <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">APEX DAVET</span>
+            </h2>
             
-            <div class="grid grid-cols-2 gap-2 mb-3">
-                <div class="bg-white/10 rounded-xl p-2 text-center">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-white/10 rounded-xl p-3 text-center">
                     <div class="text-xs text-gray-400">Toplam Davet</div>
-                    <div class="text-lg font-bold text-purple-400" id="totalReferrals">0</div>
+                    <div class="text-xl font-bold text-purple-400" id="totalReferrals">0</div>
                 </div>
-                <div class="bg-white/10 rounded-xl p-2 text-center">
+                <div class="bg-white/10 rounded-xl p-3 text-center">
                     <div class="text-xs text-gray-400">Kazanılan</div>
-                    <div class="text-lg font-bold text-green-400" id="referralEarnings">0</div>
+                    <div class="text-xl font-bold text-green-400" id="referralEarnings">0</div>
                 </div>
             </div>
             
             <div class="mb-3">
-                <div class="text-xs text-gray-400 mb-1">Senin özel davet linkin:</div>
+                <div class="text-xs text-gray-400 mb-2">Özel davet linkin:</div>
                 <div class="flex gap-2">
-                    <input type="text" id="referralLink" readonly class="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-sm text-white" value="Yükleniyor...">
-                    <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-3 text-purple-300 text-sm">Kopyala</button>
+                    <input type="text" id="referralLink" readonly class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm text-white" value="Yükleniyor...">
+                    <button id="copyLinkButton" class="bg-purple-500/20 border border-purple-500/30 rounded-xl px-4 text-purple-300 hover:bg-purple-500/30 transition-all">
+                        Kopyala
+                    </button>
                 </div>
             </div>
             
-            <div class="text-xs text-gray-400 bg-white/5 p-2 rounded-lg">
-                <span class="text-purple-400">💰 +500 NAPX</span> her davette<br>
-                <span class="text-purple-400">🎁 +200 NAPX</span> arkadaşın ilk tap'inde
+            <div class="text-sm text-gray-400 bg-white/5 p-3 rounded-lg border border-white/10">
+                <span class="text-purple-400 font-bold">💰 +500 NAPX</span> her davette<br>
+                <span class="text-purple-400 font-bold">🎁 +200 NAPX</span> arkadaşın ilk tap'inde
             </div>
         </div>
         
         <!-- ========== İSTATİSTİKLER ========== -->
-        <div class="grid grid-cols-3 gap-2">
-            <div class="bg-white/5 backdrop-blur-xl rounded-xl p-2 text-center">
+        <div class="grid grid-cols-3 gap-3">
+            <div class="glass-card p-3 text-center">
                 <div class="text-xs text-gray-400">Toplam Tap</div>
-                <div class="text-base font-bold" id="totalTaps">0</div>
+                <div class="text-lg font-bold text-white" id="totalTaps">0</div>
             </div>
-            <div class="bg-white/5 backdrop-blur-xl rounded-xl p-2 text-center">
+            <div class="glass-card p-3 text-center">
                 <div class="text-xs text-gray-400">Saatlik</div>
-                <div class="text-base font-bold text-purple-400" id="hourlyRate">9</div>
+                <div class="text-lg font-bold text-purple-400" id="hourlyRate">9</div>
             </div>
-            <div class="bg-white/5 backdrop-blur-xl rounded-xl p-2 text-center">
+            <div class="glass-card p-3 text-center">
                 <div class="text-xs text-gray-400">Çarpan</div>
-                <div class="text-base font-bold text-blue-400" id="multiplier">1.0x</div>
+                <div class="text-lg font-bold text-blue-400" id="multiplier">1.0x</div>
             </div>
         </div>
         
-        <!-- ========== ALT NAVIGASYON ========== -->
-        <nav class="fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-xl border-t border-purple-500/20 pb-safe z-50">
-            <div class="grid grid-cols-5 gap-1 max-w-md mx-auto py-1">
-                <button class="flex flex-col items-center p-2 text-purple-400">🏠<span class="text-[10px]">Farm</span></button>
-                <button class="flex flex-col items-center p-2 text-gray-500">📊<span class="text-[10px]">Earn</span></button>
-                <button class="flex flex-col items-center p-2 text-gray-500">👑<span class="text-[10px]">Leaders</span></button>
-                <button class="flex flex-col items-center p-2 text-gray-500">👥<span class="text-[10px]">Friends</span></button>
-                <button class="flex flex-col items-center p-2 text-gray-500">💰<span class="text-[10px]">Token</span></button>
-            </div>
-        </nav>
+        <!-- Nova ve Apex imzası -->
+        <div class="text-center mt-6 text-xs text-gray-600 flex justify-center items-center gap-2">
+            <span>✨ NOVA</span>
+            <span class="text-purple-500">⚡</span>
+            <span>APEX ⚡</span>
+        </div>
     </div>
 
     <script>
         // =============================================
-        // NOVAPEX - SUPABASE ENTEGRE SON VERSİYON
+        // NOVAPEX - YENİ TASARIM (Günlük/Spin yok, butonlar temiz)
         // =============================================
         
         const ENERJI_AYARLARI = { max: 1000, tapEnerji: 1, yenilenmeSaniye: 10, yenilenmeMiktar: 1 };
@@ -267,7 +403,7 @@
                     updateReferralLink();
                 }
                 
-                tg.CloudStorage.getItem('novapex_supabase', function(err, value) {
+                tg.CloudStorage.getItem('novapex_final', function(err, value) {
                     if (value) {
                         try { 
                             const saved = JSON.parse(value); 
@@ -282,25 +418,8 @@
             setInterval(yenilenEnerji, ENERJI_AYARLARI.yenilenmeSaniye * 1000);
             
             document.getElementById('claimButton').onclick = claimFarm;
-            document.getElementById('boostButton').onclick = () => alert('Boost yakında!');
+            document.getElementById('boostButton').onclick = () => alert('🚀 Boost yakında!');
             document.getElementById('tapButton').onclick = tap;
-            
-            document.getElementById('tasksButton').onclick = () => {
-                document.getElementById('tasksSection').classList.remove('hidden');
-                document.getElementById('referralSection').classList.add('hidden');
-            };
-            document.getElementById('closeTasks').onclick = () => {
-                document.getElementById('tasksSection').classList.add('hidden');
-            };
-            
-            document.getElementById('referralButton').onclick = () => {
-                document.getElementById('referralSection').classList.remove('hidden');
-                document.getElementById('tasksSection').classList.add('hidden');
-            };
-            document.getElementById('closeReferral').onclick = () => {
-                document.getElementById('referralSection').classList.add('hidden');
-            };
-            
             document.getElementById('copyLinkButton').onclick = copyReferralLink;
         };
         
@@ -360,6 +479,11 @@
                 userData.energy -= ENERJI_AYARLARI.tapEnerji;
                 updateScreen(); kaydet(); gorevleriKontrolEt('tap'); checkFirstTap();
                 if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+                
+                // Tap anında küçük bir görsel efekt
+                const btn = document.getElementById('tapButton');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 100);
             }
         }
         
@@ -410,16 +534,21 @@
         function updateScreen() {
             document.getElementById('napxBalance').textContent = userData.napx;
             document.getElementById('totalTaps').textContent = userData.taps;
+            
             const enerjiYuzde = (userData.energy / ENERJI_AYARLARI.max) * 100;
             document.getElementById('energyBar').style.width = enerjiYuzde + '%';
             document.getElementById('energyText').textContent = `${userData.energy}/${ENERJI_AYARLARI.max}`;
+            
             const seviye = seviyeBul(userData.taps);
             document.getElementById('userLevelBadge').textContent = seviye.ad;
+            document.getElementById('userLevelDisplay').textContent = seviye.ad;
             document.getElementById('multiplier').textContent = seviye.carpan + 'x';
             document.getElementById('hourlyRate').textContent = seviye.saatlik || 9;
             document.getElementById('tapKazanc').textContent = `+${Math.floor(1 * seviye.carpan)} NAPX`;
+            
             const siradaki = SEVIYELER.find(s => s.minTap > userData.taps) || SEVIYELER[SEVIYELER.length-1];
-            document.getElementById('nextLevel').textContent = siradaki?.ad || 'Max';
+            document.getElementById('nextLevelDisplay').textContent = siradaki?.ad || 'Max';
+            
             const index = SEVIYELER.findIndex(s => s.ad === seviye.ad);
             const sonraki = SEVIYELER[index + 1];
             if (sonraki) {
@@ -431,6 +560,7 @@
                 document.getElementById('levelProgressBar').style.width = '100%';
                 document.getElementById('levelProgressText').textContent = 'Max Seviye';
             }
+            
             document.getElementById('totalReferrals').textContent = userData.totalReferrals || 0;
             document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
         }
@@ -443,8 +573,11 @@
                 html += `
                     <div class="bg-white/5 rounded-xl p-3 border border-white/10 ${tamam ? 'opacity-50' : ''}">
                         <div class="flex justify-between items-center">
-                            <div><div class="font-medium text-sm">${g.ad}</div><div class="text-xs text-gray-400">+${g.odul} NAPX</div></div>
-                            <button onclick="gorevYap(${g.id})" class="px-3 py-1.5 bg-purple-500/20 rounded-lg text-xs text-purple-300">
+                            <div>
+                                <div class="font-medium text-sm text-white">${g.ad}</div>
+                                <div class="text-xs text-gray-400">+${g.odul} NAPX</div>
+                            </div>
+                            <button onclick="gorevYap(${g.id})" class="px-3 py-1.5 bg-purple-500/20 rounded-lg text-xs text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all">
                                 ${tamam ? '✓ Tamamlandı' : 'Git'}
                             </button>
                         </div>
@@ -486,7 +619,7 @@
         
         function kaydet() {
             if (tg) {
-                tg.CloudStorage.setItem('novapex_supabase', JSON.stringify({
+                tg.CloudStorage.setItem('novapex_final', JSON.stringify({
                     napx: userData.napx, taps: userData.taps, energy: userData.energy,
                     lastClaim: userData.lastClaim, tamamlananGorevler: userData.tamamlananGorevler,
                     referrals: userData.referrals, totalReferrals: userData.totalReferrals,
