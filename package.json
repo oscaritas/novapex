@@ -1,7 +1,16 @@
 {
-  "name": "novapex-backend",
+  "name": "novapex",
   "version": "1.0.0",
+  "description": "NovApex referral boost system",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
   }
 }
